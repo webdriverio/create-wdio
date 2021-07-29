@@ -33,7 +33,7 @@
     "release:minor": "npm run release -- minor",
     "release:major": "npm run release -- major",
     "test": "run-s build eslint test:unit",
-    "test:unit": "jest --coverage",
+    "test:unit": "echo \"Add me soon please\"",
     "watch": "npm run compile -- --watch"
   },
   "devDependencies": {
