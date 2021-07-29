@@ -1,8 +1,27 @@
 {
-  "name": "typescript-starter",
+  "name": "wdio",
   "version": "0.0.0",
-  "description": "tbd",
-  "main": "index.js",
+  "description": "Install WebdriverIO with all its dependencies in a single run",
+  "author": "Christian Bromann <christian@saucelabs.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/webdriverio/wdio#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webdriverio/wdio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/webdriverio/wdio/issues"
+  },
+  "keywords": [
+    "webdriverio",
+    "wdio",
+    "installer",
+    "e2e"
+  ],
+  "bin": {
+    "wdio": "./bin/index.js"
+  },
+  "main": "./bin/index.js",
   "scripts": {
     "build": "run-s clean compile",
     "clean": "rimraf tsconfig.tsbuildinfo ./build ./coverage",
@@ -17,19 +36,12 @@
     "test:unit": "jest --coverage",
     "watch": "npm run compile -- --watch"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/christian-bromann/typescript-starter.git"
-  },
-  "author": "Christian Bromann <christian@saucelabs.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/christian-bromann/typescript-starter/issues"
-  },
-  "homepage": "https://github.com/christian-bromann/typescript-starter#readme",
   "devDependencies": {
+    "@schemastore/package": "0.0.6",
+    "@types/cross-spawn": "^6.0.2",
     "@types/jest": "^26.0.24",
     "@types/node": "^16.4.6",
+    "@types/semver": "^7.3.8",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
     "eslint": "^7.31.0",
@@ -37,8 +49,14 @@
     "jest": "^27.0.6",
     "npm-run-all": "^4.1.5",
     "release-it": "^14.10.1",
+    "semver": "^7.3.5",
     "ts-jest": "^27.0.4",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "commander": "^8.1.0",
+    "cross-spawn": "^7.0.3"
   }
 }
