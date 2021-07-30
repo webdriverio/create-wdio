@@ -42,22 +42,22 @@ export function run () {
     if (typeof projectName === 'undefined' && !fs.existsSync('package.json')) {
         console.error('There is no package.json in current directory')
         console.log(
-            'To create codeceptjs in a new project pass in a directory name:\n' +
+            'To create WebdriverIO in a new project pass in a directory name:\n' +
             `  ${chalk.cyan(program.name())} ${chalk.green('/path/to/project/directory')}\n` +
             '\n' +
             'For example:\n' +
             `  ${chalk.cyan(program.name())} ${chalk.green('webdriverio-tests')}\n` +
             '\n' +
-            'To update current project to include CodeceptJS packages, run this script in a directory with package.json\n' +
+            'To update current project to include WebdriverIO packages, run this script in a directory with package.json\n' +
             `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
         )
         process.exit(1)
     }
 
-    createCodecept(program.opts())
+    createWebdriverIO(program.opts())
 }
 
-async function createCodecept(opts: ProgramOpts) {
+async function createWebdriverIO(opts: ProgramOpts) {
     let pkgJson: PackageJSON = {}
 
     const unsupportedNodeVersion = !semver.satisfies(process.version, '>=12')
@@ -73,7 +73,7 @@ async function createCodecept(opts: ProgramOpts) {
     }
 
     process.chdir(root)
-    root = path.join(process.cwd(), projectName || '')
+    root = process.cwd()
     const currentDir = process.cwd()
     const pkgJsonPath = path.join(currentDir, 'package.json')
     if (!useYarn && !checkThatNpmCanReadCwd()) {
@@ -92,7 +92,7 @@ async function createCodecept(opts: ProgramOpts) {
             private: true
         }
     } else {
-        console.log('package.json found, adding codeceptjs dependencies & scripts into it')
+        console.log('package.json found, adding WebdriverIO dependencies & scripts into it')
         pkgJson = require(pkgJsonPath)
     }
 
