@@ -53,9 +53,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: compiled-package
+          path: build/
       - name: Release
         run: |
-          ls -la ./
           npm pack --dry-run
           npm run release:ci -- ${{github.event.inputs.releaseType}}
         env:
