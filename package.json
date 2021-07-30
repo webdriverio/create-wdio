@@ -19,9 +19,9 @@
     "e2e"
   ],
   "bin": {
-    "wdio": "./bin/index.js"
+    "wdio": "./bin/wdio.js"
   },
-  "main": "./bin/index.js",
+  "main": "./bin/wdio.js",
   "scripts": {
     "build": "run-s clean compile",
     "clean": "rimraf tsconfig.tsbuildinfo ./build ./coverage",
