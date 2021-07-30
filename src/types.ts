@@ -3,4 +3,5 @@ export interface ProgramOpts {
     verbose: boolean
     info: boolean
     dev: boolean
+    yes: boolean
 }

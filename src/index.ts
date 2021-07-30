@@ -31,7 +31,8 @@ export function run () {
         .option('--use-yarn')
         .option('--verbose', 'print additional logs')
         .option('--info', 'print environment debug info')
-        .option('--dev', 'Install all packages as into devDependencies')
+        .option('--yes', 'will fill in all config defaults without prompting', false)
+        .option('--dev', 'Install all packages as into devDependencies', true)
 
         .allowUnknownOption()
         .on('--help', () => {
@@ -102,14 +103,14 @@ async function createWebdriverIO(opts: ProgramOpts) {
 
     pkgJson.scripts['wdio'] = 'wdio run wdio.conf.js'
     await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
-    await install(deps.flat(), root, opts.verbose)
+    await install(deps.flat(), root, opts)
 
     console.log(
         '\nFinished installing packages.\n' +
         'Running WDIO CLI Wizard...'
     )
 
-    await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : [])])
+    await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
 
     console.log(`🤖 Successfully setup project at ${root} 🎉`)
     if (root != currentDir) {
@@ -117,8 +118,8 @@ async function createWebdriverIO(opts: ProgramOpts) {
     }
 }
 
-function install (dependencies: string[], root: string, verbose: boolean) {
-    const logLevel = verbose ? 'trace' : 'error'
+function install (dependencies: string[], root: string, opts: ProgramOpts) {
+    const logLevel = opts.verbose ? 'trace' : 'error'
     let command: string
     let args: string[]
 
@@ -130,7 +131,7 @@ function install (dependencies: string[], root: string, verbose: boolean) {
 
     if (useYarn) {
         command = 'yarnpkg'
-        args = ['add', '-D', '--exact', ...dependencies]
+        args = ['add', ...(opts.dev ? ['-D'] : []), '--exact', ...dependencies]
 
         // Explicitly set cwd() to work around issues like
         // https://github.com/facebook/create-react-app/issues/3326.
@@ -140,7 +141,7 @@ function install (dependencies: string[], root: string, verbose: boolean) {
         args.push('--cwd', root)
     } else {
         command = 'npm'
-        args = ['install', '--save-dev', '--loglevel', logLevel, ...dependencies]
+        args = ['install', opts.dev ? '--save-dev' : '--save', '--loglevel', logLevel, ...dependencies]
     }
 
     return runProgram(command, args)
