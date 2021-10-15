@@ -12,6 +12,10 @@ export function exists (path: string) {
 
 export function runProgram (command: string, args: string[], options: SpawnOptions = { stdio: 'inherit' }) {
     const child = spawn(command, args, options)
+
+    // ignore errors and check exit code instead
+    child.on('error', () => {})
+
     return new Promise<void>((resolve, reject) => {
         child.on('close', code => {
             if (code !== 0) {
