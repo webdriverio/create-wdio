@@ -1,4 +1,5 @@
 const command: any = {}
+command.name = jest.fn().mockReturnValue(command)
 command.version = jest.fn().mockReturnValue(command)
 command.usage = jest.fn().mockReturnValue(command)
 command.arguments = jest.fn().mockReturnValue(command)
