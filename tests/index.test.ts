@@ -1,5 +1,11 @@
-import { add } from '../src/index'
+import { Command } from 'commander'
 
-test('can add', () => {
-    expect(add(1, 2)).toBe(3)
+import { run } from '../src'
+
+test('run', () => {
+    const op = jest.fn().mockResolvedValue({})
+    run(op)
+
+    expect(op).toBeCalledWith('foobar')
+    expect(new Command().arguments).toBeCalledWith('[project]')
 })

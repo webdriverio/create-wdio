@@ -26,14 +26,14 @@
     "build": "run-s clean compile",
     "clean": "rimraf tsconfig.tsbuildinfo ./build ./coverage",
     "compile": "tsc -p ./tsconfig.json",
-    "eslint": "eslint -c ./.eslintrc.js ./src/**/*.ts ./tests/**/*.ts",
     "release": "release-it --github.release",
     "release:ci": "npm run release -- --ci --npm.skipChecks --no-git.requireCleanWorkingDir",
     "release:patch": "npm run release -- patch",
     "release:minor": "npm run release -- minor",
     "release:major": "npm run release -- major",
-    "test": "run-s build eslint test:unit",
-    "test:unit": "echo \"Add me soon please\"",
+    "test": "run-s build test:*",
+    "test:eslint": "eslint -c ./.eslintrc.js ./src/**/*.ts ./tests/**/*.ts",
+    "test:unit": "npx jest",
     "watch": "npm run compile -- --watch"
   },
   "devDependencies": {

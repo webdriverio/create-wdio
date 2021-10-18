@@ -17,7 +17,7 @@ try { pkg = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString(
 let projectName: string | undefined
 let useYarn: boolean | undefined
 
-export function run () {
+export function run (operation = createWebdriverIO) {
     /**
      * print program ASCII art
      */
@@ -29,18 +29,14 @@ export function run () {
         .version(`v${pkg.version}`, '-v, --version')
         .arguments('[project]')
         .usage(`${chalk.green('[project]')} [options]`)
-        .action(name => {
-            projectName = name
-        })
+        .action(name => (projectName = name))
         .option('--use-yarn', 'Use Yarn package manager to install packages', false)
         .option('--verbose', 'print additional logs')
         .option('--yes', 'will fill in all config defaults without prompting', false)
         .option('--dev', 'Install all packages as into devDependencies', true)
 
         .allowUnknownOption()
-        .on('--help', () => {
-            console.log()
-        })
+        .on('--help', () => console.log())
         .parse(process.argv)
 
     if (typeof projectName === 'undefined' && !fs.existsSync('package.json')) {
@@ -58,7 +54,7 @@ export function run () {
         process.exit(1)
     }
 
-    createWebdriverIO(program.opts()).then(
+    return operation(program.opts()).then(
         () => console.log(`To start the test, run: ${chalk.cyan('$ npm run')} ${chalk.green(program.name())}`))
 }
 

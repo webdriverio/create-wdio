@@ -18,7 +18,7 @@ export function runProgram (command: string, args: string[], options: SpawnOptio
         child.on('close', code => {
             if (code !== 0) {
                 return reject(new Error(
-                    error.message ||
+                    (error && error.message) ||
                     `Error calling: ${command} ${args.join(' ')}`
                 ))
             }
