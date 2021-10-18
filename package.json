@@ -1,6 +1,6 @@
 {
   "name": "wdio",
-  "version": "5.1.0",
+  "version": "6.0.0",
   "description": "Install WebdriverIO with all its dependencies in a single run",
   "author": "Christian Bromann <christian@saucelabs.com>",
   "license": "MIT",
