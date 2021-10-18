@@ -55,10 +55,12 @@ export function run () {
         process.exit(1)
     }
 
-    createWebdriverIO(program.opts())
+    createWebdriverIO(program.opts()).then(
+        () => console.log(`To start the test, run: ${chalk.cyan('$ npm run')} ${chalk.green(program.name())}`))
 }
 
 async function createWebdriverIO(opts: ProgramOpts) {
+    const ewd = process.cwd()
     let pkgJson: PackageJSON = {}
 
     const unsupportedNodeVersion = !semver.satisfies(process.version, '>=12')
@@ -113,8 +115,8 @@ async function createWebdriverIO(opts: ProgramOpts) {
     await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
 
     console.log(`🤖 Successfully setup project at ${root} 🎉`)
-    if (root != currentDir) {
-        console.log(chalk.yellow('⚠'), 'Change directory to', chalk.yellow(root), 'to run these commands')
+    if (root != ewd) {
+        console.log(`\n${chalk.yellow('⚠')} First, change the directory via: ${chalk.cyan('$ cd')} ${chalk.green(root)}`)
     }
 }
 
