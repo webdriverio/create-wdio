@@ -11,7 +11,9 @@ import { exists, runProgram, shouldUseYarn, checkThatNpmCanReadCwd } from './uti
 import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION } from './constants'
 import type { ProgramOpts } from './types'
 
-const pkg = require(__dirname + '/../package.json')
+let pkg = { version: 'unknown' }
+try { pkg = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString()) } catch (e: any) { /* ignore */ }
+
 let projectName: string | undefined
 let useYarn: boolean | undefined
 
@@ -19,10 +21,12 @@ export function run () {
     /**
      * print program ASCII art
      */
-    console.log(ASCII_ROBOT, PROGRAM_TITLE)
+    if (!(process.argv.includes('--version') || process.argv.includes('-v'))) {
+        console.log(ASCII_ROBOT, PROGRAM_TITLE)
+    }
 
     const program = new Command('wdio')
-        .version(pkg.version)
+        .version(`v${pkg.version}`, '-v, --version')
         .arguments('[project]')
         .usage(`${chalk.green('[project]')} [options]`)
         .action(name => {
@@ -30,7 +34,6 @@ export function run () {
         })
         .option('--use-yarn', 'Use Yarn package manager to install packages', false)
         .option('--verbose', 'print additional logs')
-        .option('--info', 'print environment debug info')
         .option('--yes', 'will fill in all config defaults without prompting', false)
         .option('--dev', 'Install all packages as into devDependencies', true)
 
