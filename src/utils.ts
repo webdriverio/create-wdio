@@ -13,9 +13,14 @@ export function exists (path: string) {
 export function runProgram (command: string, args: string[], options: SpawnOptions = { stdio: 'inherit' }) {
     const child = spawn(command, args, options)
     return new Promise<void>((resolve, reject) => {
+        let error: Error
+        child.on('error', (e) => (error = e))
         child.on('close', code => {
             if (code !== 0) {
-                return reject({ command: `${command} ${args.join(' ')}` })
+                return reject(new Error(
+                    error.message ||
+                    `Error calling: ${command} ${args.join(' ')}`
+                ))
             }
             resolve()
         })

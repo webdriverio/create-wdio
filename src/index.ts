@@ -21,7 +21,7 @@ export function run () {
      */
     console.log(ASCII_ROBOT, PROGRAM_TITLE)
 
-    const program = new Command('Create WebdriverIO')
+    const program = new Command('wdio')
         .version(pkg.version)
         .arguments('[project]')
         .usage(`${chalk.green('[project]')} [options]`)
@@ -47,7 +47,7 @@ export function run () {
             `  ${chalk.cyan(program.name())} ${chalk.green('/path/to/project/directory')}\n` +
             '\n' +
             'For example:\n' +
-            `  ${chalk.cyan(program.name())} ${chalk.green('webdriverio-tests')}\n` +
+            `  ${chalk.cyan(program.name())} ${chalk.green('./tests')}\n` +
             '\n' +
             'To update current project to include WebdriverIO packages, run this script in a directory with package.json\n' +
             `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
