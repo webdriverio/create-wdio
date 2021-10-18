@@ -15,7 +15,3 @@ test('runProgram', async () => {
     const err2 = await runProgram('foobarloo', []).catch((e) => e)
     expect(err2.message).toBe('spawn foobarloo ENOENT')
 })
-
-test('shouldUseYarn', async () => {
-    expect(await shouldUseYarn()).toBe(false)
-})
