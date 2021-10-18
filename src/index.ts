@@ -28,7 +28,7 @@ export function run () {
         .action(name => {
             projectName = name
         })
-        .option('--use-yarn')
+        .option('--use-yarn', 'Use Yarn package manager to install packages', false)
         .option('--verbose', 'print additional logs')
         .option('--info', 'print environment debug info')
         .option('--yes', 'will fill in all config defaults without prompting', false)
@@ -41,7 +41,7 @@ export function run () {
         .parse(process.argv)
 
     if (typeof projectName === 'undefined' && !fs.existsSync('package.json')) {
-        console.error('There is no package.json in current directory')
+        console.error('There is no package.json in current directory!\n')
         console.log(
             'To create WebdriverIO in a new project pass in a directory name:\n' +
             `  ${chalk.cyan(program.name())} ${chalk.green('/path/to/project/directory')}\n` +
@@ -66,7 +66,7 @@ async function createWebdriverIO(opts: ProgramOpts) {
         console.log(chalk.yellow(UNSUPPORTED_NODE_VERSION))
     }
 
-    useYarn = opts.useYarn || await shouldUseYarn()
+    useYarn = opts.useYarn && await shouldUseYarn()
 
     let root = path.join(process.cwd(), projectName || '')
     if (!await exists(root)) {
