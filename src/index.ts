@@ -94,7 +94,7 @@ async function createWebdriverIO(opts: ProgramOpts) {
             private: true
         }
     } else {
-        console.log('package.json found, adding WebdriverIO dependencies & scripts into it')
+        console.log('package.json found, adding WebdriverIO dependencies')
         pkgJson = require(pkgJsonPath)
     }
 
@@ -102,7 +102,6 @@ async function createWebdriverIO(opts: ProgramOpts) {
         pkgJson.scripts = {}
     }
 
-    pkgJson.scripts['wdio'] = 'wdio run wdio.conf.js'
     await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
     await install(deps.flat(), root, opts)
 
@@ -112,6 +111,12 @@ async function createWebdriverIO(opts: ProgramOpts) {
     )
 
     await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
+    
+    console.log('Adding scripts to package.json')
+    const isUsingTypescript = fs.existsSync('wdio.conf.ts');
+    pkgJson = require(pkgJsonPath)
+    pkgJson.scripts['wdio'] = `wdio run wdio.conf.${isUsingTypescript ? 'ts' : 'js'}`
+    fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
 
     console.log(`🤖 Successfully setup project at ${root} 🎉`)
     if (root != ewd) {
