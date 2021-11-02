@@ -113,10 +113,10 @@ async function createWebdriverIO(opts: ProgramOpts) {
     await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
     
     console.log('Adding scripts to package.json')
-    const isUsingTypescript = fs.existsSync('wdio.conf.ts');
+    const isUsingTypescript = await exists('wdio.conf.ts')
     pkgJson = require(pkgJsonPath)
     pkgJson.scripts['wdio'] = `wdio run wdio.conf.${isUsingTypescript ? 'ts' : 'js'}`
-    fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
+    await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
 
     console.log(`🤖 Successfully setup project at ${root} 🎉`)
     if (root != ewd) {
