@@ -20,21 +20,19 @@ If you have questions or need help, please ask in our [Gitter Support Chat](http
 To install a WebdriverIO project, you may choose one of the following methods:
 
 ```sh
-# install in current directory
-npx create-wdio e2e
+npx create-wdio ./e2e
 ```
 
 _([npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) is a package runner tool that comes with npm 5.2+ and higher, see [instructions for older npm versions](https://gist.github.com/gaearon/4064d3c23a77c74a3614c498a8bb1c5f))_
 
 ```sh
-# install in new directory
-npm init wdio e2e
+npm init wdio ./e2e
 ```
 
 _`npm init <initializer>` is available in npm 6+_
 
 ```sh
-yarn create wdio e2e
+yarn create wdio ./e2e
 ```
 
 _[`yarn create <starter-kit-package>`](https://yarnpkg.com/lang/en/docs/cli/create/) is available in Yarn 0.25+_
