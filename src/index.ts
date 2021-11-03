@@ -81,6 +81,16 @@ async function createWebdriverIO(opts: ProgramOpts) {
 
     console.log(`\nCreating WebdriverIO project in ${chalk.bold(root)}\n`)
 
+    if (!await exists(pkgJsonPath)) {
+        console.log('package.json file does not exist in current dir, creating it...')
+        const pkgJson = {
+            name: 'webdriverio-tests',
+            version: '0.1.0',
+            private: true
+        }
+        await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
+    }
+    
     const deps = ['@wdio/cli']
     await install(deps.flat(), root, opts)
     console.log('\nFinished installing packages.')
