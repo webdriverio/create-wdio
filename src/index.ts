@@ -84,18 +84,22 @@ async function createWebdriverIO(opts: ProgramOpts) {
     const deps = ['@wdio/cli']
     await install(deps.flat(), root, opts)
     console.log('\nFinished installing packages.')
-        
+
     console.log('\nRunning WDIO CLI Wizard...')
     await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
-    
-    console.log('Adding scripts to package.json')
-    const isUsingTypescript = await exists('wdio.conf.ts')
-    const pkgJson = require(pkgJsonPath)
-    if (!pkgJson.scripts) {
-        pkgJson.scripts = {}
+
+    if (await exists(pkgJsonPath)) {
+        console.log('Adding scripts to package.json')
+
+        const pkgJson = require(pkgJsonPath)
+        const isUsingTypescript = await exists('wdio.conf.ts')
+
+        if (!pkgJson.scripts) {
+            pkgJson.scripts = {}
+        }
+        pkgJson.scripts['wdio'] = `wdio run wdio.conf.${isUsingTypescript ? 'ts' : 'js'}`
+        await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
     }
-    pkgJson.scripts['wdio'] = `wdio run wdio.conf.${isUsingTypescript ? 'ts' : 'js'}`
-    await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
 
     console.log(`\n🤖 Successfully setup project at ${root} 🎉`)
     if (root != ewd) {
