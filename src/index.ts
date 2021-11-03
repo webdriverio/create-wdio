@@ -5,8 +5,6 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import semver from 'semver'
 
-import type { JSONSchemaForNPMPackageJsonFiles as PackageJSON } from '@schemastore/package'
-
 import { exists, runProgram, shouldUseYarn, checkThatNpmCanReadCwd } from './utils'
 import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION } from './constants'
 import type { ProgramOpts } from './types'
@@ -60,7 +58,6 @@ export function run (operation = createWebdriverIO) {
 
 async function createWebdriverIO(opts: ProgramOpts) {
     const ewd = process.cwd()
-    let pkgJson: PackageJSON = {}
 
     const unsupportedNodeVersion = !semver.satisfies(process.version, '>=12')
     if (unsupportedNodeVersion) {
@@ -85,35 +82,22 @@ async function createWebdriverIO(opts: ProgramOpts) {
     console.log(`\nCreating WebdriverIO project in ${chalk.bold(root)}\n`)
 
     const deps = ['@wdio/cli']
-    if (!await exists(pkgJsonPath)) {
-        console.log('package.json file does not exist in current dir, creating it...')
-
-        pkgJson = {
-            name: 'webdriverio-tests',
-            version: '0.1.0',
-            private: true
-        }
-    } else {
-        console.log('package.json found, adding WebdriverIO dependencies & scripts into it')
-        pkgJson = require(pkgJsonPath)
-    }
-
+    await install(deps.flat(), root, opts)
+    console.log('\nFinished installing packages.')
+        
+    console.log('\nRunning WDIO CLI Wizard...')
+    await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
+    
+    console.log('Adding scripts to package.json')
+    const isUsingTypescript = await exists('wdio.conf.ts')
+    const pkgJson = require(pkgJsonPath)
     if (!pkgJson.scripts) {
         pkgJson.scripts = {}
     }
-
-    pkgJson.scripts['wdio'] = 'wdio run wdio.conf.js'
+    pkgJson.scripts['wdio'] = `wdio run wdio.conf.${isUsingTypescript ? 'ts' : 'js'}`
     await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
-    await install(deps.flat(), root, opts)
 
-    console.log(
-        '\nFinished installing packages.\n' +
-        'Running WDIO CLI Wizard...'
-    )
-
-    await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
-
-    console.log(`🤖 Successfully setup project at ${root} 🎉`)
+    console.log(`\n🤖 Successfully setup project at ${root} 🎉`)
     if (root != ewd) {
         console.log(`\n${chalk.yellow('⚠')} First, change the directory via: ${chalk.cyan('$ cd')} ${chalk.green(root)}`)
     }
