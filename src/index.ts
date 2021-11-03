@@ -5,8 +5,6 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import semver from 'semver'
 
-import type { JSONSchemaForNPMPackageJsonFiles as PackageJSON } from '@schemastore/package'
-
 import { exists, runProgram, shouldUseYarn, checkThatNpmCanReadCwd } from './utils'
 import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION } from './constants'
 import type { ProgramOpts } from './types'
