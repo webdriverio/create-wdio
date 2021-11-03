@@ -17,19 +17,26 @@ If you have questions or need help, please ask in our [Gitter Support Chat](http
 </p>
 
 ## Usage
+
 To install a WebdriverIO project, you may choose one of the following methods:
+
+#### npx
 
 ```sh
 npx create-wdio ./e2e
 ```
 
-_([npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) is a package runner tool that comes with npm 5.2+ and higher, see [instructions for older npm versions](https://gist.github.com/gaearon/4064d3c23a77c74a3614c498a8bb1c5f))_
+_[`npx`](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) is a package runner tool that comes with npm 5.2+ and higher, see [instructions for older npm versions](https://gist.github.com/gaearon/4064d3c23a77c74a3614c498a8bb1c5f)_
+
+#### npm
 
 ```sh
 npm init wdio ./e2e
 ```
 
-_`npm init <initializer>` is available in npm 6+_
+_[`npm init <initializer>`](https://docs.npmjs.com/cli/v7/commands/npm-init) is available in npm 6+_
+
+#### yarn
 
 ```sh
 yarn create wdio ./e2e
@@ -37,9 +44,11 @@ yarn create wdio ./e2e
 
 _[`yarn create <starter-kit-package>`](https://yarnpkg.com/lang/en/docs/cli/create/) is available in Yarn 0.25+_
 
-It will create a directory called `e2e` inside the current folder.<br>
+
+It will create a directory called `e2e` inside the current folder.  
 Then it will run the configuration wizard that will help you setup your framework.
 
+    
 ## Supported Options
 
 You can pass the following command line flags to modify the bootstrap mechanism:
