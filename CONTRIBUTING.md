@@ -1,6 +1,6 @@
-# Contributing to `XXX`
+# Contributing to `create-wdio`
 
-**Thank you for your interest in `XXX`. Your contributions are highly welcome.**
+**Thank you for your interest in `create-wdio`. Your contributions are highly welcome.**
 
 There are multiple ways of getting involved:
 

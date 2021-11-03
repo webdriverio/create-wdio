@@ -41,10 +41,10 @@ export function run (operation = createWebdriverIO) {
         console.error('There is no package.json in current directory!\n')
         console.log(
             'To create WebdriverIO in a new project pass in a directory name:\n' +
-            `  ${chalk.cyan(program.name())} ${chalk.green('/path/to/project/directory')}\n` +
+            `  npm init ${chalk.cyan(program.name())} ${chalk.green('/path/to/project/directory')}\n` +
             '\n' +
             'For example:\n' +
-            `  ${chalk.cyan(program.name())} ${chalk.green('./tests')}\n` +
+            `  npm init ${chalk.cyan(program.name())} ${chalk.green('./tests')}\n` +
             '\n' +
             'To update current project to include WebdriverIO packages, run this script in a directory with package.json\n' +
             `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`

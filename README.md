@@ -1,22 +1,46 @@
-WebdriverIO Starter Toolkit
+WebdriverIO Starter Toolkit [![Test Changes](https://github.com/webdriverio/create-wdio/actions/workflows/test.yml/badge.svg?branch=main&event=push)](https://github.com/webdriverio/create-wdio/actions/workflows/test.yml) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg)](https://github.com/webdriverio/create-wdio/blob/main/CONTRIBUTING.md)
 ===========================
 
-One command to create a fresh WebdriverIO project or add WebdriverIO to an existing project. It is not required to use `wdio` on any project, you can install them on your own, but it is very easy to start from scratch.
+<img alt="Logo" align="right" src="https://webdriver.io/assets/images/robot-3677788dd63849c56aa5cb3f332b12d5.svg" width="20%" />
+
+One command to create a fresh WebdriverIO project or add WebdriverIO to an existing project.
+
+- [Get Started Guide](https://webdriver.io/docs/gettingstarted) - How to get started with WebdriverIO
+- [Supported Options](#supported-options) - command line parameters
+
+`create-wdio` works on macOS, Windows, and Linux.<br>
+If something doesn’t work, please [file an issue](https://github.com/webdriverio/create-wdio/issues/new).<br>
+If you have questions or need help, please ask in our [Gitter Support Chat](https://gitter.im/webdriverio/webdriverio).
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/webdriverio/wdio/main/.github/assets/demo.gif" alt="Example" />
 </p>
 
 ## Usage
-To install a WebdriverIO project, just run
+To install a WebdriverIO project, you may choose one of the following methods:
 
 ```sh
 # install in current directory
-npx wdio .
-
-# install in new directory
-npx wdio /path/to/new/project
+npx create-wdio e2e
 ```
+
+_([npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) is a package runner tool that comes with npm 5.2+ and higher, see [instructions for older npm versions](https://gist.github.com/gaearon/4064d3c23a77c74a3614c498a8bb1c5f))_
+
+```sh
+# install in new directory
+npm init wdio e2e
+```
+
+_`npm init <initializer>` is available in npm 6+_
+
+```sh
+yarn create wdio e2e
+```
+
+_[`yarn create <starter-kit-package>`](https://yarnpkg.com/lang/en/docs/cli/create/) is available in Yarn 0.25+_
+
+It will create a directory called `e2e` inside the current folder.<br>
+Then it will run the configuration wizard that will help you setup your framework.
 
 ## Supported Options
 

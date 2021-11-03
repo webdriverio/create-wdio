@@ -1,27 +1,27 @@
 {
-  "name": "wdio",
+  "name": "create-wdio",
   "version": "6.0.1",
   "description": "Install WebdriverIO with all its dependencies in a single run",
   "author": "Christian Bromann <christian@saucelabs.com>",
   "license": "MIT",
-  "homepage": "https://github.com/webdriverio/wdio#readme",
+  "homepage": "https://github.com/webdriverio/create-wdio#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/webdriverio/wdio.git"
+    "url": "git+https://github.com/webdriverio/create-wdio.git"
   },
   "bugs": {
-    "url": "https://github.com/webdriverio/wdio/issues"
+    "url": "https://github.com/webdriverio/create-wdio/issues"
   },
   "keywords": [
     "webdriverio",
+    "create-wdio",
     "wdio",
     "installer",
     "e2e"
   ],
   "bin": {
-    "wdio": "./bin/wdio.js"
+    "create-wdio": "./bin/wdio.js"
   },
-  "main": "./bin/wdio.js",
   "scripts": {
     "build": "run-s clean compile",
     "clean": "rimraf tsconfig.tsbuildinfo ./build ./coverage",
