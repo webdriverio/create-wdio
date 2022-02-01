@@ -102,12 +102,12 @@ async function createWebdriverIO(opts: ProgramOpts) {
         console.log('Adding scripts to package.json')
 
         const pkgJson = require(pkgJsonPath)
-        const isUsingTypescript = await exists('wdio.conf.ts')
+        const isUsingTypescript = await exists('test/wdio.conf.ts')
 
         if (!pkgJson.scripts) {
             pkgJson.scripts = {}
         }
-        pkgJson.scripts['wdio'] = `wdio run wdio.conf.${isUsingTypescript ? 'ts' : 'js'}`
+        pkgJson.scripts['wdio'] = `wdio run ${isUsingTypescript ? 'test/wdio.conf.ts' : 'wdio.conf.js'}`
         await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
     }
 
