@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 
+export const DEFAULT_NPM_TAG = 'latest'
 const colorItBold = chalk.bold.rgb(234, 89, 6)
 const colorIt = chalk.rgb(234, 89, 6)
 

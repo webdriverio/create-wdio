@@ -6,11 +6,15 @@ import { Command } from 'commander'
 import semver from 'semver'
 
 import { exists, runProgram, shouldUseYarn, checkThatNpmCanReadCwd } from './utils'
-import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION } from './constants'
+import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG } from './constants'
 import type { ProgramOpts } from './types'
 
 let pkg = { version: 'unknown' }
-try { pkg = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString()) } catch (e: any) { /* ignore */ }
+try {
+    pkg = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString())
+} catch (e: any) {
+    /* ignore */
+}
 
 let projectName: string | undefined
 let useYarn: boolean | undefined
@@ -28,10 +32,11 @@ export function run (operation = createWebdriverIO) {
         .arguments('[project]')
         .usage(`${chalk.green('[project]')} [options]`)
         .action(name => (projectName = name))
-        .option('--use-yarn', 'Use Yarn package manager to install packages', false)
-        .option('--verbose', 'print additional logs')
-        .option('--yes', 'will fill in all config defaults without prompting', false)
-        .option('--dev', 'Install all packages as into devDependencies', true)
+        .option('-t, --npm-tag <tag>', 'Which NPM version you like to install, e.g. @next', DEFAULT_NPM_TAG)
+        .option('-u, --use-yarn', 'Use Yarn package manager to install packages', false)
+        .option('-v, --verbose', 'print additional logs')
+        .option('-y, --yes', 'will fill in all config defaults without prompting', false)
+        .option('-d, --dev', 'Install all packages as into devDependencies', true)
 
         .allowUnknownOption()
         .on('--help', () => console.log())
@@ -57,7 +62,8 @@ export function run (operation = createWebdriverIO) {
 }
 
 async function createWebdriverIO(opts: ProgramOpts) {
-    const ewd = process.cwd()
+    const cwd = process.cwd()
+    const npmTag = opts.npmTag.startsWith('@') ? opts.npmTag : `@${opts.npmTag}`
 
     const unsupportedNodeVersion = !semver.satisfies(process.version, '>=12')
     if (unsupportedNodeVersion) {
@@ -90,8 +96,9 @@ async function createWebdriverIO(opts: ProgramOpts) {
         }
         await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
     }
-    
-    const deps = ['@wdio/cli']
+
+    const deps = [`@wdio/cli${npmTag}`]
+
     await install(deps.flat(), root, opts)
     console.log('\nFinished installing packages.')
 
@@ -112,7 +119,7 @@ async function createWebdriverIO(opts: ProgramOpts) {
     }
 
     console.log(`\n🤖 Successfully setup project at ${root} 🎉`)
-    if (root != ewd) {
+    if (root != cwd) {
         console.log(`\n${chalk.yellow('⚠')} First, change the directory via: ${chalk.cyan('$ cd')} ${chalk.green(root)}`)
     }
 }
