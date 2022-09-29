@@ -1,26 +1,23 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from 'path'
-import cp from 'child_process'
 
 import chalk from 'chalk'
-import { Command } from 'commander'
 import semver from 'semver'
+import { Command } from 'commander'
 
-import { exists, runProgram, shouldUseYarn, checkThatNpmCanReadCwd } from './utils'
-import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG } from './constants'
+import { exists, runProgram, shouldUseYarn, getPackageVersion } from './utils'
+import {
+    ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
+    COMMUNITY_DISCLAIMER
+} from './constants'
 import type { ProgramOpts } from './types'
 
-let pkg = { version: 'unknown' }
-try {
-    pkg = JSON.parse(fs.readFileSync(__dirname + '/../package.json').toString())
-} catch (e: any) {
-    /* ignore */
-}
+const WDIO_COMMAND = 'wdio'
+let projectDir: string | undefined
 
-let projectName: string | undefined
-let useYarn: boolean | undefined
+export async function run (operation = createWebdriverIO) {
+    const version = await getPackageVersion()
 
-export function run (operation = createWebdriverIO) {
     /**
      * print program ASCII art
      */
@@ -28,11 +25,12 @@ export function run (operation = createWebdriverIO) {
         console.log(ASCII_ROBOT, PROGRAM_TITLE)
     }
 
-    const program = new Command('wdio')
-        .version(`v${pkg.version}`, '-v, --version')
-        .arguments('[project]')
-        .usage(`${chalk.green('[project]')} [options]`)
-        .action(name => (projectName = name))
+    const program = new Command(WDIO_COMMAND)
+        .version(version, '-v, --version')
+        .arguments('[project-path]')
+        .usage(`${chalk.green('[project-path]')} [options]`)
+        .action(name => (projectDir = name))
+
         .option('-t, --npm-tag <tag>', 'Which NPM version you like to install, e.g. @next', DEFAULT_NPM_TAG)
         .option('-u, --use-yarn', 'Use Yarn package manager to install packages', false)
         .option('-v, --verbose', 'print additional logs')
@@ -43,27 +41,12 @@ export function run (operation = createWebdriverIO) {
         .on('--help', () => console.log())
         .parse(process.argv)
 
-    if (typeof projectName === 'undefined' && !fs.existsSync('package.json')) {
-        console.error('There is no package.json in current directory!\n')
-        console.log(
-            'To create WebdriverIO in a new project pass in a directory name:\n' +
-            `  npm init ${chalk.cyan(program.name())} ${chalk.green('/path/to/project/directory')}\n` +
-            '\n' +
-            'For example:\n' +
-            `  npm init ${chalk.cyan(program.name())} ${chalk.green('./tests')}\n` +
-            '\n' +
-            'To update current project to include WebdriverIO packages, run this script in a directory with package.json\n' +
-            `Run ${chalk.cyan(`${program.name()} --help`)} to see all options.`
-        )
-        process.exit(1)
-    }
-
-    return operation(program.opts()).then(
-        () => console.log(`To start the test, run: ${chalk.cyan('$ npm run')} ${chalk.green(program.name())}`))
+    return operation(program.opts())
 }
 
 async function createWebdriverIO(opts: ProgramOpts) {
     const cwd = process.cwd()
+    const useYarn = opts.useYarn && await shouldUseYarn()
     const npmTag = opts.npmTag.startsWith('@') ? opts.npmTag : `@${opts.npmTag}`
 
     const unsupportedNodeVersion = !semver.satisfies(process.version, '>=12')
@@ -71,82 +54,61 @@ async function createWebdriverIO(opts: ProgramOpts) {
         console.log(chalk.yellow(UNSUPPORTED_NODE_VERSION))
     }
 
-    useYarn = opts.useYarn && await shouldUseYarn()
-
-    let root = path.join(process.cwd(), projectName || '')
+    const root = path.resolve(process.cwd(), projectDir || '')
     if (!await exists(root)) {
-        await fs.promises.mkdir(root, { recursive: true })
+        await fs.mkdir(root, { recursive: true })
     }
 
-    process.chdir(root)
-    root = process.cwd()
-    const currentDir = process.cwd()
-    const pkgJsonPath = path.join(currentDir, 'package.json')
-    if (!useYarn && !checkThatNpmCanReadCwd()) {
-        process.exit(1)
-    }
-
+    const pkgJsonPath = path.join(root, 'package.json')
     console.log(`\nCreating WebdriverIO project in ${chalk.bold(root)}\n`)
 
     if (!await exists(pkgJsonPath)) {
-        console.log('package.json file does not exist in current dir, creating it...')
+        console.log(`Creating a ${chalk.bold('package.json')} for the directory.`)
         const pkgJson = {
             name: 'webdriverio-tests',
             version: '0.1.0',
-            private: true
+            description: '',
+            private: true,
+            keywords: [],
+            author: '',
+            license: 'ISC'
         }
-        await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
+        await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
+        console.log(chalk.green.bold('✔ Success!'))
     }
 
-    const deps = [`@wdio/cli${npmTag}`]
-
-    await install(deps.flat(), root, opts)
-    console.log('\nFinished installing packages.')
+    console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project.`)
+    const logLevel = opts.verbose ? 'trace' : 'error'
+    const command = useYarn ? 'yarnpkg' : 'npm'
+    const args = useYarn
+        ? ['add', ...(opts.dev ? ['-D'] : []), '--exact', '--cwd', root, `@wdio/cli${npmTag}`]
+        : ['install', opts.dev ? '--save-dev' : '--save', '--loglevel', logLevel, `@wdio/cli${npmTag}`]
+    await runProgram(command, args, { cwd: root, stdio: 'ignore' })
+    console.log(chalk.green.bold('✔ Success!'))
 
     console.log('\nRunning WDIO CLI Wizard...')
-    await runProgram('npx', ['wdio', 'config', ...(useYarn ? ['--yarn'] : []), ...(opts.yes ? ['--yes'] : [])])
+    await runProgram('npx', [
+        WDIO_COMMAND,
+        'config',
+        ...(useYarn ? ['--yarn'] : []),
+        ...(opts.yes ? ['--yes'] : [])
+    ], { cwd: root })
 
     if (await exists(pkgJsonPath)) {
-        console.log('Adding scripts to package.json')
+        console.log(`Adding ${chalk.bold(`"${WDIO_COMMAND}"`)} script to package.json.`)
         const isUsingTypescript = await exists('test/wdio.conf.ts')
         const script = `wdio run ${isUsingTypescript ? 'test/wdio.conf.ts' : 'wdio.conf.js'}`
-        cp.spawn(`npm set-script wdio "${script}"`, {
-            shell: true,
-            cwd: path.dirname(pkgJsonPath)
-        })
+        await runProgram('npm', ['set-script', WDIO_COMMAND, script], { cwd: root })
+        console.log(chalk.green.bold('✔ Success!'))
     }
 
-    console.log(`\n🤖 Successfully setup project at ${root} 🎉`)
+    console.log(`\n🤖 Successfully setup project at ${root} 🎉\n`)
+    console.log(COMMUNITY_DISCLAIMER)
+
     if (root != cwd) {
-        console.log(`\n${chalk.yellow('⚠')} First, change the directory via: ${chalk.cyan('$ cd')} ${chalk.green(root)}`)
-    }
-}
-
-function install (dependencies: string[], root: string, opts: ProgramOpts) {
-    const logLevel = opts.verbose ? 'trace' : 'error'
-    let command: string
-    let args: string[]
-
-    console.log(
-        'Installing packages: ',
-        chalk.green(dependencies.join(', ')),
-        '\n'
-    )
-
-    if (useYarn) {
-        command = 'yarnpkg'
-        args = ['add', ...(opts.dev ? ['-D'] : []), '--exact', ...dependencies]
-
-        // Explicitly set cwd() to work around issues like
-        // https://github.com/facebook/create-react-app/issues/3326.
-        // Unfortunately we can only do this for Yarn because npm support for
-        // equivalent --prefix flag doesn't help with this issue.
-        // This is why for npm, we run checkThatNpmCanReadCwd() early instead.
-        args.push('--cwd', root)
-    } else {
-        command = 'npm'
-        args = ['install', opts.dev ? '--save-dev' : '--save', '--loglevel', logLevel, ...dependencies]
+        console.log(`${chalk.bold.yellow('⚠')} First, change the directory via: ${chalk.cyan('$ cd')} ${chalk.green(root)}`)
     }
 
-    return runProgram(command, args)
+    console.log(`To start the test, run: ${chalk.cyan('$ npm run')} ${chalk.green(WDIO_COMMAND)}`)
 }
+

@@ -1,9 +1,6 @@
-import chalk from 'chalk'
+import { colorItBold, colorIt } from './utils'
 
 export const DEFAULT_NPM_TAG = 'latest'
-const colorItBold = chalk.bold.rgb(234, 89, 6)
-const colorIt = chalk.rgb(234, 89, 6)
-
 export const ASCII_ROBOT = `
                  -:...........................-:.
                  +                              +
@@ -55,4 +52,12 @@ export const PROGRAM_TITLE = `
 export const UNSUPPORTED_NODE_VERSION = (
     `You are using Node ${process.version} so the project will be bootstrapped with an old unsupported version of tools.\n\n` +
     'Please update to Node 12 or higher for a better, fully supported experience.\n'
+)
+
+export const COMMUNITY_DISCLAIMER = (
+    'Join our Gitter community and instantly find answers to your issues or queries. Or just join and say hi 👋!\n' +
+    '  🔗 https://gitter.im/webdriverio/webdriverio\n' +
+    '\n' +
+    'Visit the project on GitHub to report bugs 🐛 or raise feature requests 💡:\n' +
+    '  🔗 https://github.com/webdriverio/webdriverio\n'
 )
