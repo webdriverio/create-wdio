@@ -1,4 +1,4 @@
-import { exists, runProgram, shouldUseYarn } from '../src/utils'
+import { exists, runProgram } from '../src/utils'
 
 test('exists', async () => {
     expect(await exists(__dirname)).toBe(true)

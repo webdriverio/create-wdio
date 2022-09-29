@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import cp from 'child_process'
 
 import chalk from 'chalk'
 import { Command } from 'commander'
@@ -107,15 +108,12 @@ async function createWebdriverIO(opts: ProgramOpts) {
 
     if (await exists(pkgJsonPath)) {
         console.log('Adding scripts to package.json')
-
-        const pkgJson = require(pkgJsonPath)
         const isUsingTypescript = await exists('test/wdio.conf.ts')
-
-        if (!pkgJson.scripts) {
-            pkgJson.scripts = {}
-        }
-        pkgJson.scripts['wdio'] = `wdio run ${isUsingTypescript ? 'test/wdio.conf.ts' : 'wdio.conf.js'}`
-        await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
+        const script = `wdio run ${isUsingTypescript ? 'test/wdio.conf.ts' : 'wdio.conf.js'}`
+        cp.spawn(`npm set-script wdio "${script}"`, {
+            shell: true,
+            cwd: path.dirname(pkgJsonPath)
+        })
     }
 
     console.log(`\n🤖 Successfully setup project at ${root} 🎉`)
