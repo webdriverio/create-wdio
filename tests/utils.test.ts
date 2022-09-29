@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import { exists, runProgram } from '../src/utils'
 
 test('exists', async () => {

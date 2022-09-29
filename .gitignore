@@ -62,8 +62,7 @@ tests/typings/dist
 
 build
 /*.js
-!jest.config.js
-!.eslintrc.js
+!.eslintrc.cjs
 .idea/
 .DS_Store
 *.tsbuildinfo

@@ -1,11 +1,14 @@
+import { vi, test, expect } from 'vitest'
 import { Command } from 'commander'
 
 import { run } from '../src'
 
-test('run', () => {
-    const op = jest.fn().mockResolvedValue({})
-    run(op)
+vi.mock('commander')
+
+test('run', async () => {
+    const op = vi.fn().mockResolvedValue({})
+    await run(op)
 
     expect(op).toBeCalledWith('foobar')
-    expect(new Command().arguments).toBeCalledWith('[project]')
+    expect(new Command().arguments).toBeCalledWith('[project-path]')
 })
