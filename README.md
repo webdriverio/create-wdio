@@ -45,10 +45,10 @@ yarn create wdio ./e2e
 _[`yarn create <starter-kit-package>`](https://yarnpkg.com/lang/en/docs/cli/create/) is available in Yarn 0.25+_
 
 
-It will create a directory called `e2e` inside the current folder.  
+It will create a directory called `e2e` inside the current folder.
 Then it will run the configuration wizard that will help you setup your framework.
 
-    
+
 ## Supported Options
 
 You can pass the following command line flags to modify the bootstrap mechanism:
@@ -56,6 +56,7 @@ You can pass the following command line flags to modify the bootstrap mechanism:
 * `--dev` - Install all packages as `devDependencies` (default: `true`)
 * `--yes` - Will fill in all config defaults without prompting (default: `false`)
 * `--use-yarn` - yes, we support yarn too! (default: `true`)
+* `--npm-tag` - use a specific NPM tag for `@wdio/cli` package (default: `latest`)
 * `--verbose` - print additional logs (default: `false`)
 
 ----

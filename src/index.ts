@@ -1,15 +1,15 @@
-import fs from 'fs/promises'
-import path from 'path'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import chalk from 'chalk'
 import semver from 'semver'
 import { Command } from 'commander'
 
-import { exists, runProgram, shouldUseYarn, getPackageVersion } from './utils'
+import { exists, runProgram, shouldUseYarn, getPackageVersion } from './utils.js'
 import {
     ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
     COMMUNITY_DISCLAIMER
-} from './constants'
+} from './constants.js'
 import type { ProgramOpts } from './types'
 
 const WDIO_COMMAND = 'wdio'

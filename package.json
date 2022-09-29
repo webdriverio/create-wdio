@@ -1,8 +1,8 @@
 {
   "name": "create-wdio",
   "version": "7.2.0",
-  "description": "Install WebdriverIO with all its dependencies in a single run",
-  "author": "Christian Bromann <christian@saucelabs.com>",
+  "description": "Install and setup a WebdriverIO project with all its dependencies in a single run",
+  "author": "Christian Bromann <mail@bromann.dev>",
   "license": "MIT",
   "homepage": "https://github.com/webdriverio/create-wdio#readme",
   "repository": {
@@ -22,6 +22,7 @@
   "bin": {
     "create-wdio": "./bin/wdio.js"
   },
+  "type": "module",
   "scripts": {
     "build": "run-s clean compile",
     "clean": "rimraf tsconfig.tsbuildinfo ./build ./coverage",
@@ -46,13 +47,14 @@
     "c8": "^7.12.0",
     "eslint": "^8.24.0",
     "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-unicorn": "^43.0.2",
     "npm-run-all": "^4.1.5",
     "release-it": "^15.4.2",
     "typescript": "^4.8.4",
     "vitest": "^0.23.4"
   },
   "dependencies": {
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.1",
     "commander": "^9.4.0",
     "cross-spawn": "^7.0.3",
     "semver": "^7.3.7"

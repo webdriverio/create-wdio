@@ -1,9 +1,12 @@
-import fs from 'fs/promises'
-import path from 'path'
-import spawn from 'cross-spawn'
-import { SpawnOptions } from 'child_process'
+import url from 'node:url'
+import path from 'node:path'
+import fs from 'node:fs/promises'
+import type { SpawnOptions } from 'node:child_process'
 
+import spawn from 'cross-spawn'
 import chalk from 'chalk'
+
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 
 export const colorItBold = chalk.bold.rgb(234, 89, 6)
 export const colorIt = chalk.rgb(234, 89, 6)

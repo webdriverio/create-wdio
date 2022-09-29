@@ -1,4 +1,4 @@
-import { colorItBold, colorIt } from './utils'
+import { colorItBold, colorIt } from './utils.js'
 
 export const DEFAULT_NPM_TAG = 'latest'
 export const ASCII_ROBOT = `
