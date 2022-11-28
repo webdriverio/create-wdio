@@ -11,13 +11,6 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 export const colorItBold = chalk.bold.rgb(234, 89, 6)
 export const colorIt = chalk.rgb(234, 89, 6)
 
-export function exists (path: string) {
-    return fs.access(path).then(
-        () => true,
-        () => false
-    )
-}
-
 export function runProgram (command: string, args: string[], options: SpawnOptions) {
     const child = spawn(command, args, { stdio: 'inherit', ...options })
     return new Promise<void>((resolve, reject) => {

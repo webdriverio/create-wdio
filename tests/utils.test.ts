@@ -1,14 +1,5 @@
-import url from 'node:url'
-import path from 'node:path'
 import { test, expect } from 'vitest'
-import { exists, runProgram } from '../src/utils'
-
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
-
-test('exists', async () => {
-    expect(await exists(__dirname)).toBe(true)
-    expect(await exists(`${__dirname}/foo`)).toBe(false)
-})
+import { runProgram } from '../src/utils'
 
 test('runProgram', async () => {
     expect(await runProgram('echo', ['123'], {})).toBe(undefined)

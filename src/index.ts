@@ -5,11 +5,8 @@ import chalk from 'chalk'
 import semver from 'semver'
 import { Command } from 'commander'
 
-import { exists, runProgram, shouldUseYarn, getPackageVersion } from './utils.js'
-import {
-    ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
-    COMMUNITY_DISCLAIMER
-} from './constants.js'
+import { runProgram, shouldUseYarn, getPackageVersion } from './utils.js'
+import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG } from './constants.js'
 import type { ProgramOpts } from './types'
 
 const WDIO_COMMAND = 'wdio'
@@ -23,6 +20,15 @@ export async function run (operation = createWebdriverIO) {
      */
     if (!(process.argv.includes('--version') || process.argv.includes('-v'))) {
         console.log(ASCII_ROBOT, PROGRAM_TITLE)
+    }
+
+    /**
+     * ensure right Node.js version is used
+     */
+    const unsupportedNodeVersion = !semver.satisfies(process.version, '>=16')
+    if (unsupportedNodeVersion) {
+        console.log(chalk.yellow(UNSUPPORTED_NODE_VERSION))
+        return
     }
 
     const program = new Command(WDIO_COMMAND)
@@ -45,36 +51,13 @@ export async function run (operation = createWebdriverIO) {
 }
 
 async function createWebdriverIO(opts: ProgramOpts) {
-    const cwd = process.cwd()
     const useYarn = opts.useYarn && await shouldUseYarn()
     const npmTag = opts.npmTag.startsWith('@') ? opts.npmTag : `@${opts.npmTag}`
 
-    const unsupportedNodeVersion = !semver.satisfies(process.version, '>=12')
-    if (unsupportedNodeVersion) {
-        console.log(chalk.yellow(UNSUPPORTED_NODE_VERSION))
-    }
-
     const root = path.resolve(process.cwd(), projectDir || '')
-    if (!await exists(root)) {
+    const rootDirExists = await fs.access(root).then(() => true, () => false)
+    if (!rootDirExists) {
         await fs.mkdir(root, { recursive: true })
-    }
-
-    const pkgJsonPath = path.join(root, 'package.json')
-    console.log(`\nCreating WebdriverIO project in ${chalk.bold(root)}\n`)
-
-    if (!await exists(pkgJsonPath)) {
-        console.log(`Creating a ${chalk.bold('package.json')} for the directory.`)
-        const pkgJson = {
-            name: 'webdriverio-tests',
-            version: '0.1.0',
-            description: '',
-            private: true,
-            keywords: [],
-            author: '',
-            license: 'ISC'
-        }
-        await fs.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 4))
-        console.log(chalk.green.bold('✔ Success!'))
     }
 
     console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project.`)
@@ -84,31 +67,5 @@ async function createWebdriverIO(opts: ProgramOpts) {
         ? ['add', ...(opts.dev ? ['-D'] : []), '--exact', '--cwd', root, `@wdio/cli${npmTag}`]
         : ['install', opts.dev ? '--save-dev' : '--save', '--loglevel', logLevel, `@wdio/cli${npmTag}`]
     await runProgram(command, args, { cwd: root, stdio: 'ignore' })
-    console.log(chalk.green.bold('✔ Success!'))
-
-    console.log('\nRunning WDIO CLI Wizard...')
-    await runProgram('npx', [
-        WDIO_COMMAND,
-        'config',
-        ...(useYarn ? ['--yarn'] : []),
-        ...(opts.yes ? ['--yes'] : [])
-    ], { cwd: root })
-
-    if (await exists(pkgJsonPath)) {
-        console.log(`Adding ${chalk.bold(`"${WDIO_COMMAND}"`)} script to package.json.`)
-        const isUsingTypescript = await exists('test/wdio.conf.ts')
-        const script = `wdio run ${isUsingTypescript ? 'test/wdio.conf.ts' : 'wdio.conf.js'}`
-        await runProgram('npm', ['set-script', WDIO_COMMAND, script], { cwd: root })
-        console.log(chalk.green.bold('✔ Success!'))
-    }
-
-    console.log(`\n🤖 Successfully setup project at ${root} 🎉\n`)
-    console.log(COMMUNITY_DISCLAIMER)
-
-    if (root != cwd) {
-        console.log(`${chalk.bold.yellow('⚠')} First, change the directory via: ${chalk.cyan('$ cd')} ${chalk.green(root)}`)
-    }
-
-    console.log(`To start the test, run: ${chalk.cyan('$ npm run')} ${chalk.green(WDIO_COMMAND)}`)
 }
 

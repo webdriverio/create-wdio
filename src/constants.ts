@@ -50,14 +50,7 @@ export const PROGRAM_TITLE = `
 `
 
 export const UNSUPPORTED_NODE_VERSION = (
-    `You are using Node ${process.version} so the project will be bootstrapped with an old unsupported version of tools.\n\n` +
-    'Please update to Node 12 or higher for a better, fully supported experience.\n'
-)
-
-export const COMMUNITY_DISCLAIMER = (
-    'Join our Gitter community and instantly find answers to your issues or queries. Or just join and say hi 👋!\n' +
-    '  🔗 https://gitter.im/webdriverio/webdriverio\n' +
-    '\n' +
-    'Visit the project on GitHub to report bugs 🐛 or raise feature requests 💡:\n' +
-    '  🔗 https://github.com/webdriverio/webdriverio\n'
+    '⚠️  Unsupported Node.js Version Error ⚠️\n' +
+    `You are using Node.js ${process.version} which is to old to be used with WebdriverIO.\n` +
+    'Please update to Node.js v16 to continue.\n'
 )
