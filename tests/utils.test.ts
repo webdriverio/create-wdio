@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { runProgram } from '../src/utils'
+import { runProgram, getPackageVersion } from '../src/utils'
 
 test('runProgram', async () => {
     expect(await runProgram('echo', ['123'], {})).toBe(undefined)
@@ -10,4 +10,8 @@ test('runProgram', async () => {
 
     const err2 = await runProgram('foobarloo', [], {}).catch((e) => e)
     expect(err2.message).toBe('spawn foobarloo ENOENT')
+})
+
+test('getPackageVersion', async () => {
+    expect(await getPackageVersion()).toEqual(expect.any(String))
 })

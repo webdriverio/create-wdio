@@ -50,8 +50,10 @@ export async function run (operation = createWebdriverIO) {
     return operation(program.opts())
 }
 
-async function createWebdriverIO(opts: ProgramOpts) {
-    const useYarn = opts.useYarn && await shouldUseYarn()
+export async function createWebdriverIO(opts: ProgramOpts) {
+    const useYarn = typeof opts.useYarn === 'boolean'
+        ? opts.useYarn
+        : await shouldUseYarn()
     const npmTag = opts.npmTag.startsWith('@') ? opts.npmTag : `@${opts.npmTag}`
 
     const root = path.resolve(process.cwd(), projectDir || '')

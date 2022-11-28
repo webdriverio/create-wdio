@@ -28,12 +28,14 @@ export function runProgram (command: string, args: string[], options: SpawnOptio
     })
 }
 
+/* c8 ignore start */
 export function shouldUseYarn() {
     return runProgram('yarnpkg', ['--version'], { stdio: 'ignore' }).then(
         () => true,
         () => false
     )
 }
+/* c8 ignore end */
 
 export async function getPackageVersion() {
     try {
