@@ -50,21 +50,31 @@ test('does not run if Node.js version is too low', async () => {
     expect(op).toBeCalledTimes(0)
 })
 
-test('createWebdriverIO', async () => {
+test('createWebdriverIO with Yarn', async () => {
     await createWebdriverIO({ npmTag: 'next', verbose: true, yes: true } as any)
     expect(runProgram).toBeCalledWith(
         'yarnpkg',
         ['add', '--exact', '--cwd', expect.any(String), '@wdio/cli@next'],
         expect.any(Object)
     )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config', '--yarn', '--yes'],
+        expect.any(Object)
+    )
     expect(fs.mkdir).toBeCalledTimes(1)
 })
 
-test('createWebdriverIO', async () => {
+test('createWebdriverIO with NPM', async () => {
     await createWebdriverIO({ useYarn: false, npmTag: 'next', verbose: true, yes: true } as any)
     expect(runProgram).toBeCalledWith(
         'npm',
         ['install', '--save', '--loglevel', 'trace', '@wdio/cli@next'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config', '--yes'],
         expect.any(Object)
     )
     expect(fs.mkdir).toBeCalledTimes(1)

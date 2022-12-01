@@ -62,12 +62,21 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         await fs.mkdir(root, { recursive: true })
     }
 
-    console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project.`)
+    console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
     const logLevel = opts.verbose ? 'trace' : 'error'
     const command = useYarn ? 'yarnpkg' : 'npm'
     const args = useYarn
         ? ['add', ...(opts.dev ? ['-D'] : []), '--exact', '--cwd', root, `@wdio/cli${npmTag}`]
         : ['install', opts.dev ? '--save-dev' : '--save', '--loglevel', logLevel, `@wdio/cli${npmTag}`]
+
     await runProgram(command, args, { cwd: root, stdio: 'ignore' })
+    console.log(chalk.green.bold('✔ Success!'))
+
+    return runProgram('npx', [
+        WDIO_COMMAND,
+        'config',
+        ...(useYarn ? ['--yarn'] : []),
+        ...(opts.yes ? ['--yes'] : [])
+    ], { cwd: root })
 }
 
