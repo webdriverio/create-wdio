@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import semver from 'semver'
+import hasYarn from 'has-yarn'
 import { vi, test, expect, beforeEach, afterEach } from 'vitest'
 import { Command } from 'commander'
 import { readPackageUp } from 'read-pkg-up'
@@ -14,6 +15,7 @@ vi.mock('node:fs/promises', () => ({
         writeFile: vi.fn()
     }
 }))
+vi.mock('has-yarn')
 vi.mock('read-pkg-up')
 vi.mock('commander')
 vi.mock('semver', () => ({
@@ -54,6 +56,7 @@ test('does not run if Node.js version is too low', async () => {
 })
 
 test('createWebdriverIO with Yarn', async () => {
+    vi.mocked(hasYarn).mockResolvedValue(true)
     await createWebdriverIO({ npmTag: 'next', verbose: true, yes: true } as any)
     expect(readPackageUp).toBeCalledTimes(1)
     expect(fs.writeFile).toBeCalledWith(

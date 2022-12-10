@@ -3,10 +3,11 @@ import path from 'node:path'
 
 import chalk from 'chalk'
 import semver from 'semver'
+import hasYarn from 'has-yarn'
 import { readPackageUp } from 'read-pkg-up'
 import { Command } from 'commander'
 
-import { runProgram, shouldUseYarn, getPackageVersion } from './utils.js'
+import { runProgram, getPackageVersion } from './utils.js'
 import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG } from './constants.js'
 import type { ProgramOpts } from './types'
 
@@ -52,9 +53,6 @@ export async function run (operation = createWebdriverIO) {
 }
 
 export async function createWebdriverIO(opts: ProgramOpts) {
-    const useYarn = typeof opts.useYarn === 'boolean'
-        ? opts.useYarn
-        : await shouldUseYarn()
     const npmTag = opts.npmTag.startsWith('@') ? opts.npmTag : `@${opts.npmTag}`
 
     const root = path.resolve(process.cwd(), projectDir || '')
@@ -78,6 +76,9 @@ export async function createWebdriverIO(opts: ProgramOpts) {
     }
 
     console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
+    const useYarn = typeof opts.useYarn === 'boolean'
+        ? opts.useYarn
+        : await hasYarn(root)
     const logLevel = opts.verbose ? 'trace' : 'error'
     const command = useYarn ? 'yarnpkg' : 'npm'
     const args = useYarn
