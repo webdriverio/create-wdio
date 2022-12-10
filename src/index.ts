@@ -3,6 +3,7 @@ import path from 'node:path'
 
 import chalk from 'chalk'
 import semver from 'semver'
+import { readPackageUp } from 'read-pkg-up'
 import { Command } from 'commander'
 
 import { runProgram, shouldUseYarn, getPackageVersion } from './utils.js'
@@ -60,6 +61,20 @@ export async function createWebdriverIO(opts: ProgramOpts) {
     const rootDirExists = await fs.access(root).then(() => true, () => false)
     if (!rootDirExists) {
         await fs.mkdir(root, { recursive: true })
+    }
+
+    /**
+     * check if a package.json exists and if not create one
+     */
+    const project = await readPackageUp({ cwd: root })
+    if (!project) {
+        await fs.writeFile(
+            path.resolve(root, 'package.json'),
+            JSON.stringify({
+                name: 'my-new-project',
+                type: 'module'
+            }, null, 2)
+        )
     }
 
     console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
