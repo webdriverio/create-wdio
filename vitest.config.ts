@@ -14,10 +14,10 @@ export default defineConfig({
         coverage: {
             enabled: true,
             exclude: ['**/build/**', '__mocks__', '**/*.test.ts'],
-            lines: 100,
-            functions: 82,
-            branches: 84,
-            statements: 100
+            lines: 98,
+            functions: 80,
+            branches: 77,
+            statements: 98
         }
     }
 })
