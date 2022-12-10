@@ -33,5 +33,13 @@ module.exports = {
         'import/export': 2,
 
         'unicorn/prefer-node-protocol': ['error']
-    }
+    },
+    overrides: [
+        {
+            files: ['*.ts'],
+            rules: {
+                'no-undef': 'off'
+            }
+        }
+    ]
 }
