@@ -41,17 +41,17 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/node": "^18.11.18",
     "@types/semver": "^7.3.13",
-    "@typescript-eslint/eslint-plugin": "^5.47.1",
-    "@typescript-eslint/parser": "^5.47.1",
-    "@vitest/coverage-c8": "^0.26.3",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "@vitest/coverage-c8": "^0.27.2",
     "c8": "^7.12.0",
-    "eslint": "^8.31.0",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint": "^8.32.0",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-unicorn": "^45.0.2",
     "npm-run-all": "^4.1.5",
     "release-it": "^15.6.0",
     "typescript": "^4.9.4",
-    "vitest": "^0.26.3"
+    "vitest": "^0.27.2"
   },
   "dependencies": {
     "chalk": "^5.2.0",
