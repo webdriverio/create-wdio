@@ -7,7 +7,3 @@ updates:
     time: "11:00"
   open-pull-requests-limit: 10
   versioning-strategy: increase-if-necessary
-  ignore:
-    # Chalk v5 is ESM only
-    - dependency-name: "chalk"
-      update-types: ["version-update:semver-major"]
