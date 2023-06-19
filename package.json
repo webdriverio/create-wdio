@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "chalk": "^5.2.0",
-    "commander": "^10.0.1",
+    "commander": "^11.0.0",
     "cross-spawn": "^7.0.3",
     "has-yarn": "^3.0.0",
     "read-pkg-up": "^9.1.0",
