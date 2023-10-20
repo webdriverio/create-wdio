@@ -76,6 +76,8 @@ export async function createWebdriverIO(opts: ProgramOpts) {
          * doesn't mark it as a Yarn project
          * @see https://github.com/egoist/detect-package-manager/issues/11
          */
+        console.log(process.argv)
+
         const cmd = PMs.includes(process.argv0) ? process.argv0 : 'npm'
         await runProgram(cmd, ['install'], { cwd: root, stdio: 'ignore' })
     }
