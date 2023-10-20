@@ -1,6 +1,6 @@
 {
   "name": "create-wdio",
-  "version": "8.3.3",
+  "version": "8.3.4",
   "description": "Install and setup a WebdriverIO project with all its dependencies in a single run",
   "author": "Christian Bromann <mail@bromann.dev>",
   "license": "MIT",
