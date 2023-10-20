@@ -61,11 +61,13 @@ export const INSTALL_COMMAND: Record<PM, string> = {
     pnpm: 'add',
     yarn: 'add',
     bun: 'install'
-}
+} as const
 
 export const DEV_FLAG: Record<PM, string> = {
     npm: '--save-dev',
     pnpm: '--save-dev',
     yarn: '--dev',
     bun: '--dev'
-}
+} as const
+
+export const PMs = Object.keys(INSTALL_COMMAND)

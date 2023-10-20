@@ -10,7 +10,7 @@ import { Command } from 'commander'
 import { runProgram, getPackageVersion } from './utils.js'
 import {
     ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
-    INSTALL_COMMAND, DEV_FLAG
+    INSTALL_COMMAND, DEV_FLAG, PMs
 } from './constants.js'
 import type { ProgramOpts } from './types'
 
@@ -76,7 +76,8 @@ export async function createWebdriverIO(opts: ProgramOpts) {
          * doesn't mark it as a Yarn project
          * @see https://github.com/egoist/detect-package-manager/issues/11
          */
-        await runProgram('npm', ['install'], { cwd: root, stdio: 'ignore' })
+        const cmd = PMs.includes(process.argv0) ? process.argv0 : 'npm'
+        await runProgram(cmd, ['install'], { cwd: root, stdio: 'ignore' })
     }
 
     console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
