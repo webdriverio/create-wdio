@@ -72,14 +72,20 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         )
 
         /**
-         * create a package-lock.json so that `detect-package-manager`
-         * doesn't mark it as a Yarn project
+         * find package manager that was used to create project
+         */
+        const pm = PMs.find((pm) => (
+            process.argv[0].includes(`${path.sep}${pm}${path.sep}`) ||
+            process.argv[0].includes(`${path.sep}.${pm}${path.sep}`)
+        )) || 'npm'
+
+        /**
+         * create a package-lock.json, yarn.lock or pnpm-lock.yaml so
+         * that `detect-package-manager` doesn't mark it as a default
+         * Yarn project
          * @see https://github.com/egoist/detect-package-manager/issues/11
          */
-        console.log(process.argv)
-
-        const cmd = PMs.includes(process.argv0) ? process.argv0 : 'npm'
-        await runProgram(cmd, ['install'], { cwd: root, stdio: 'ignore' })
+        await runProgram(pm, ['install'], { cwd: root, stdio: 'ignore' })
     }
 
     console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
