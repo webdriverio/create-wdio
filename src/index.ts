@@ -3,12 +3,15 @@ import path from 'node:path'
 
 import chalk from 'chalk'
 import semver from 'semver'
-import hasYarn from 'has-yarn'
+import { detect } from 'detect-package-manager'
 import { readPackageUp } from 'read-pkg-up'
 import { Command } from 'commander'
 
 import { runProgram, getPackageVersion } from './utils.js'
-import { ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG } from './constants.js'
+import {
+    ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
+    INSTALL_COMMAND, DEV_FLAG
+} from './constants.js'
 import type { ProgramOpts } from './types'
 
 const WDIO_COMMAND = 'wdio'
@@ -40,8 +43,6 @@ export async function run (operation = createWebdriverIO) {
         .action(name => (projectDir = name))
 
         .option('-t, --npm-tag <tag>', 'Which NPM version you like to install, e.g. @next', DEFAULT_NPM_TAG)
-        .option('-u, --use-yarn', 'Use Yarn package manager to install packages', false)
-        .option('-v, --verbose', 'print additional logs')
         .option('-y, --yes', 'will fill in all config defaults without prompting', false)
         .option('-d, --dev', 'Install all packages as into devDependencies', true)
 
@@ -54,18 +55,14 @@ export async function run (operation = createWebdriverIO) {
 
 export async function createWebdriverIO(opts: ProgramOpts) {
     const npmTag = opts.npmTag.startsWith('@') ? opts.npmTag : `@${opts.npmTag}`
-
     const root = path.resolve(process.cwd(), projectDir || '')
-    const rootDirExists = await fs.access(root).then(() => true, () => false)
-    if (!rootDirExists) {
-        await fs.mkdir(root, { recursive: true })
-    }
 
     /**
      * check if a package.json exists and if not create one
      */
     const project = await readPackageUp({ cwd: root })
     if (!project) {
+        await fs.mkdir(root, { recursive: true })
         await fs.writeFile(
             path.resolve(root, 'package.json'),
             JSON.stringify({
@@ -73,25 +70,31 @@ export async function createWebdriverIO(opts: ProgramOpts) {
                 type: 'module'
             }, null, 2)
         )
+
+        /**
+         * create a package-lock.json so that `detect-package-manager`
+         * doesn't mark it as a Yarn project
+         * @see https://github.com/egoist/detect-package-manager/issues/11
+         */
+        await runProgram('npm', ['install'], { cwd: root, stdio: 'ignore' })
     }
 
     console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
-    const useYarn = typeof opts.useYarn === 'boolean'
-        ? opts.useYarn
-        : await hasYarn(root)
-    const logLevel = opts.verbose ? 'trace' : 'error'
-    const command = useYarn ? 'yarnpkg' : 'npm'
-    const args = useYarn
-        ? ['add', ...(opts.dev ? ['-D'] : []), '--exact', '--cwd', root, `@wdio/cli${npmTag}`]
-        : ['install', opts.dev ? '--save-dev' : '--save', '--loglevel', logLevel, `@wdio/cli${npmTag}`]
-
-    await runProgram(command, args, { cwd: root, stdio: 'ignore' })
+    const pm = await detect({ cwd: root })
+    const args = [INSTALL_COMMAND[pm]]
+    if (pm === 'yarn') {
+        args.push('--exact', '--cwd', root)
+    }
+    if (opts.dev) {
+        args.push(DEV_FLAG[pm])
+    }
+    args.push(`@wdio/cli${npmTag}`)
+    await runProgram(pm, args, { cwd: root, stdio: 'ignore' })
     console.log(chalk.green.bold('✔ Success!'))
 
     return runProgram('npx', [
         WDIO_COMMAND,
         'config',
-        ...(useYarn ? ['--yarn'] : []),
         ...(opts.yes ? ['--yes'] : [])
     ], { cwd: root })
 }

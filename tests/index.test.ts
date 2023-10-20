@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import semver from 'semver'
-import hasYarn from 'has-yarn'
+import { detect } from 'detect-package-manager'
 import { vi, test, expect, beforeEach, afterEach } from 'vitest'
 import { Command } from 'commander'
 import { readPackageUp } from 'read-pkg-up'
@@ -15,7 +15,9 @@ vi.mock('node:fs/promises', () => ({
         writeFile: vi.fn()
     }
 }))
-vi.mock('has-yarn')
+vi.mock('detect-package-manager', () => ({
+    detect: vi.fn().mockReturnValue('pnpm')
+}))
 vi.mock('read-pkg-up')
 vi.mock('commander')
 vi.mock('semver', () => ({
@@ -34,6 +36,7 @@ vi.mock('../src/utils.js', () => ({
 const consoleLog = console.log.bind(console)
 beforeEach(() => {
     console.log = vi.fn()
+    vi.mocked(runProgram).mockClear()
 })
 
 test('run', async () => {
@@ -56,34 +59,73 @@ test('does not run if Node.js version is too low', async () => {
 })
 
 test('createWebdriverIO with Yarn', async () => {
-    vi.mocked(hasYarn).mockResolvedValue(true)
-    await createWebdriverIO({ npmTag: 'next', verbose: true, yes: true } as any)
+    vi.mocked(detect).mockResolvedValue('yarn')
+    vi.mocked(readPackageUp).mockResolvedValue({
+        path: '/foo/bar/package.json',
+        packageJson: { name: 'my-new-project' }
+    })
+    await createWebdriverIO({ npmTag: 'next', yes: true } as any)
     expect(readPackageUp).toBeCalledTimes(1)
-    expect(fs.writeFile).toBeCalledWith(
-        expect.any(String),
-        JSON.stringify({
-            name: 'my-new-project',
-            type: 'module'
-        }, null, 2)
-    )
     expect(runProgram).toBeCalledWith(
-        'yarnpkg',
+        'yarn',
         ['add', '--exact', '--cwd', expect.any(String), '@wdio/cli@next'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config', '--yarn', '--yes'],
+        ['wdio', 'config', '--yes'],
         expect.any(Object)
     )
-    expect(fs.mkdir).toBeCalledTimes(1)
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
 })
 
 test('createWebdriverIO with NPM', async () => {
-    await createWebdriverIO({ useYarn: false, npmTag: 'next', verbose: true, yes: true } as any)
+    vi.mocked(detect).mockResolvedValue('npm')
+    await createWebdriverIO({ npmTag: 'next', yes: true } as any)
     expect(runProgram).toBeCalledWith(
         'npm',
-        ['install', '--save', '--loglevel', 'trace', '@wdio/cli@next'],
+        ['install', '@wdio/cli@next'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config', '--yes'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+})
+
+test('createWebdriverIO with pnpm', async () => {
+    vi.mocked(detect).mockResolvedValue('pnpm')
+    await createWebdriverIO({ npmTag: 'next', yes: true } as any)
+    expect(runProgram).toBeCalledWith(
+        'pnpm',
+        ['add', '@wdio/cli@next'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config', '--yes'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+})
+
+test('creates a directory if it does not exist', async () => {
+    vi.mocked(readPackageUp).mockResolvedValue(undefined)
+    vi.mocked(detect).mockResolvedValue('pnpm')
+    await createWebdriverIO({ npmTag: 'next', yes: true, dev: true } as any)
+    expect(runProgram).toBeCalledWith(
+        'npm',
+        ['install'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'pnpm',
+        ['add', '--save-dev', '@wdio/cli@next'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledWith(
@@ -92,6 +134,7 @@ test('createWebdriverIO with NPM', async () => {
         expect.any(Object)
     )
     expect(fs.mkdir).toBeCalledTimes(1)
+    expect(runProgram).toBeCalledTimes(3)
 })
 
 afterEach(() => {

@@ -1,3 +1,4 @@
+import type { PM } from 'detect-package-manager'
 import { colorItBold, colorIt } from './utils.js'
 
 export const DEFAULT_NPM_TAG = 'latest'
@@ -54,3 +55,17 @@ export const UNSUPPORTED_NODE_VERSION = (
     `You are using Node.js ${process.version} which is to old to be used with WebdriverIO.\n` +
     'Please update to Node.js v16 to continue.\n'
 )
+
+export const INSTALL_COMMAND: Record<PM, string> = {
+    npm: 'install',
+    pnpm: 'add',
+    yarn: 'add',
+    bun: 'install'
+}
+
+export const DEV_FLAG: Record<PM, string> = {
+    npm: '--save-dev',
+    pnpm: '--save-dev',
+    yarn: '--dev',
+    bun: '--dev'
+}
