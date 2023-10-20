@@ -76,9 +76,9 @@ export async function createWebdriverIO(opts: ProgramOpts) {
          */
         const pm = PMs.find((pm) => (
             // for pnpm check for "~/Library/pnpm/store/v3/..."
-            process.argv[0].includes(`${path.sep}${pm}${path.sep}`) ||
+            process.argv[1].includes(`${path.sep}${pm}${path.sep}`) ||
             // for NPM and Yarn check for "~/.npm/npx/..." or "~/.yarn/bin/create-wdio"
-            process.argv[0].includes(`${path.sep}.${pm}${path.sep}`)
+            process.argv[1].includes(`${path.sep}.${pm}${path.sep}`)
         )) || 'npm'
 
         /**
