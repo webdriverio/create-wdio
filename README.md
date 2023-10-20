@@ -44,6 +44,13 @@ yarn create wdio@latest ./e2e
 
 _[`yarn create <starter-kit-package>`](https://yarnpkg.com/lang/en/docs/cli/create/) is available in Yarn 0.25+_
 
+#### pnpm
+
+```sh
+pnpm create wdio ./e2e
+```
+
+_[`pnpm create <starter-kit-package>`](https://pnpm.io/cli/create) is available in pnpm v7+_
 
 It will create a directory called `e2e` inside the current folder.
 Then it will run the configuration wizard that will help you set-up your framework.
@@ -55,9 +62,7 @@ You can pass the following command line flags to modify the bootstrap mechanism:
 
 * `--dev` - Install all packages as `devDependencies` (default: `true`)
 * `--yes` - Will fill in all config defaults without prompting (default: `false`)
-* `--use-yarn` - yes, we support yarn too! (default: `true`)
 * `--npm-tag` - use a specific NPM tag for `@wdio/cli` package (default: `latest`)
-* `--verbose` - print additional logs (default: `false`)
 
 ----
 
