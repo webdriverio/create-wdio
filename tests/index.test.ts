@@ -5,6 +5,7 @@ import { Command } from 'commander'
 
 import { run, createWebdriverIO } from '../src'
 import { runProgram } from '../src/utils'
+import { ProgramOpts } from '../src/types'
 
 vi.mock('node:fs/promises', () => ({
     default: {
@@ -58,10 +59,10 @@ test('does not run if Node.js version is too low', async () => {
 
 test('createWebdriverIO with Yarn', async () => {
     process.argv = ['', '~/.yarn/bin/create-wdio']
-    await createWebdriverIO({ npmTag: 'next', yes: true } as any)
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'yarn',
-        ['run', 'wdio', 'config', '--yes'],
+        ['run', 'wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -70,15 +71,15 @@ test('createWebdriverIO with Yarn', async () => {
 
 test('createWebdriverIO with NPM', async () => {
     process.argv = ['', '~/.npm/npx/...']
-    await createWebdriverIO({ npmTag: 'next', yes: true } as any)
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npm',
-        ['install', '@wdio/cli@next'],
+        ['install', '@wdio/cli@latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config', '--yes'],
+        ['wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -87,10 +88,15 @@ test('createWebdriverIO with NPM', async () => {
 
 test('createWebdriverIO with pnpm', async () => {
     process.argv = ['', '~/Library/pnpm/store/v3/...']
-    await createWebdriverIO({ npmTag: 'next', yes: true } as any)
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'pnpm',
-        ['run', 'wdio', 'config', '--yes'],
+        ['add', '@wdio/cli@latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'pnpm',
+        ['run', 'wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -99,15 +105,61 @@ test('createWebdriverIO with pnpm', async () => {
 
 test('creates a directory if it does not exist', async () => {
     process.argv = ['', '~/.npm/npx/...']
-    await createWebdriverIO({ npmTag: 'next', yes: true, dev: true } as any)
+    await createWebdriverIO({ npmTag: 'latest', dev: true } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npm',
-        ['install', '--save-dev', '@wdio/cli@next'],
+        ['install', '--save-dev', '@wdio/cli@latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(1)
+})
+
+test('does not install the @wdio/cli package when the skipCLI option is set to true', async () => {
+    process.argv = ['', '~/.npm/npx/...']
+    await createWebdriverIO({ npmTag: 'latest', skipCLI: true } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(1)
+    expect(fs.mkdir).toBeCalledTimes(1)
+})
+
+test('runs the wdio config command with --yes when the yes option is set to true', async () => {
+    process.argv = ['', '~/.npm/npx/...']
+    await createWebdriverIO({ npmTag: 'latest', yes: true } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'npm',
+        ['install', '@wdio/cli@latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledWith(
         'npx',
         ['wdio', 'config', '--yes'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(1)
+})
+
+test('installs the next version when the npmTag option is set to "next"', async () => {
+    process.argv = ['', '~/.npm/npx/...']
+    await createWebdriverIO({ npmTag: 'next' } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'npm',
+        ['install', '@wdio/cli@next'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
