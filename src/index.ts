@@ -3,7 +3,6 @@ import path from 'node:path'
 
 import chalk from 'chalk'
 import semver from 'semver'
-import { readPackageUp } from 'read-pkg-up'
 import { Command } from 'commander'
 
 import { runProgram, getPackageVersion } from './utils.js'
@@ -44,6 +43,7 @@ export async function run (operation = createWebdriverIO) {
         .option('-t, --npm-tag <tag>', 'Which NPM version you like to install, e.g. @next', DEFAULT_NPM_TAG)
         .option('-y, --yes', 'will fill in all config defaults without prompting', false)
         .option('-d, --dev', 'Install all packages as into devDependencies', true)
+        .option('-s, --skipCLI', 'Skip installation of cli', false)
 
         .allowUnknownOption()
         .on('--help', () => console.log())
@@ -77,25 +77,19 @@ export async function createWebdriverIO(opts: ProgramOpts) {
             }, null, 2)
         )
     }
-    /**
-     * install packages if there is no package.json found higher up the tree
-     */
-    const hasPackageJsonInAncestor = await readPackageUp({ cwd: root })
-    if (!hasPackageJsonInAncestor) {
-        await runProgram(pm, ['install'], { cwd: root, stdio: 'ignore' })
+    if (!opts.skipCLI) {
+        console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
+        const args = [INSTALL_COMMAND[pm]]
+        if (pm === 'yarn') {
+            args.push('--exact', '--cwd', root)
+        }
+        if (opts.dev) {
+            args.push(DEV_FLAG[pm])
+        }
+        args.push(`@wdio/cli${npmTag}`)
+        await runProgram(pm, args, { cwd: root, stdio: 'ignore' })
+        console.log(chalk.green.bold('✔ Success!'))
     }
-
-    console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
-    const args = [INSTALL_COMMAND[pm]]
-    if (pm === 'yarn') {
-        args.push('--exact', '--cwd', root)
-    }
-    if (opts.dev) {
-        args.push(DEV_FLAG[pm])
-    }
-    args.push(`@wdio/cli${npmTag}`)
-    await runProgram(pm, args, { cwd: root, stdio: 'ignore' })
-    console.log(chalk.green.bold('✔ Success!'))
 
     if (pm === 'npm') {
         return runProgram('npx', [
