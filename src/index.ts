@@ -11,6 +11,7 @@ import {
     INSTALL_COMMAND, DEV_FLAG, PMs
 } from './constants.js'
 import type { ProgramOpts } from './types'
+import { execSync } from 'node:child_process'
 
 const WDIO_COMMAND = 'wdio'
 let projectDir: string | undefined
@@ -68,11 +69,16 @@ export async function createWebdriverIO(opts: ProgramOpts) {
 
     let cliInstalled = false
     try {
-        // check if the cli already exists
         // can be replaced with import.meta.resolve('@wdio/cli', new URL(`file:///${root}`).href) in the future
+        // check if the cli is installed in the project
         resolve('@wdio/cli', new URL(`file:///${root}`).href)
         cliInstalled = true
     } catch (error) {
+        // check of the cli is installed globally
+        const output = execSync('npm ls -g', { encoding: 'utf-8' })
+        if (output.includes('@wdio/cli')) {
+            cliInstalled = true
+        }
         // ignore error
     }
     if (!cliInstalled) {

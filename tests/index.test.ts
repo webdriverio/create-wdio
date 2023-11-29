@@ -3,6 +3,7 @@ import semver from 'semver'
 import { resolve } from 'import-meta-resolve'
 import { vi, test, expect, beforeEach, afterEach } from 'vitest'
 import { Command } from 'commander'
+import { execSync } from 'node:child_process'
 
 import { run, createWebdriverIO } from '../src'
 import { runProgram } from '../src/utils'
@@ -14,6 +15,9 @@ vi.mock('node:fs/promises', () => ({
         mkdir: vi.fn(),
         writeFile: vi.fn()
     }
+}))
+vi.mock('node:child_process', () => ({
+    execSync: vi.fn()
 }))
 vi.mock('import-meta-resolve', () => ({
     resolve: vi.fn()
@@ -39,6 +43,11 @@ beforeEach(() => {
     vi.mocked(resolve).mockImplementation(() => {
         throw new Error('foo')
     })
+    vi.mocked(execSync).mockReturnValue(`
+    ├── corepack@0.20.0
+    ├── npm@10.2.0
+    └── yarn@1.22.19
+    `)
 })
 
 test('run', async () => {
@@ -124,9 +133,26 @@ test('creates a directory if it does not exist', async () => {
     expect(runProgram).toBeCalledTimes(2)
 })
 
-test('does not install the @wdio/cli package when the @wdio/cli package is already installed', async () => {
+test('does not install the @wdio/cli package when the @wdio/cli package is already installed in the current project', async () => {
     process.argv = ['', '~/.npm/npx/...']
     vi.mocked(resolve).mockReturnValue('/Users/user/dev/my-monorepo/package.json')
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(1)
+})
+
+test('does not install the @wdio/cli package when the @wdio/cli package is already installed globally', async () => {
+    process.argv = ['', '~/.npm/npx/...']
+    vi.mocked(execSync).mockReturnValue(`
+    ├── @wdio/cli@8.24.3
+    ├── corepack@0.20.0
+    ├── npm@10.2.0
+    └── yarn@1.22.19
+    `)
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npx',
@@ -172,5 +198,6 @@ afterEach(() => {
     vi.mocked(fs.mkdir).mockClear()
     vi.mocked(runProgram).mockClear()
     vi.mocked(resolve).mockClear()
+    vi.mocked(execSync).mockClear()
     console.log = consoleLog
 })
