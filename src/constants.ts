@@ -1,5 +1,6 @@
-import type { PM } from 'detect-package-manager'
 import { colorItBold, colorIt } from './utils.js'
+
+type PM = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
 export const DEFAULT_NPM_TAG = 'latest'
 export const ASCII_ROBOT = `
@@ -70,4 +71,4 @@ export const DEV_FLAG: Record<PM, string> = {
     bun: '--dev'
 } as const
 
-export const PMs = Object.keys(INSTALL_COMMAND)
+export const PMs = Object.keys(INSTALL_COMMAND) as PM[]

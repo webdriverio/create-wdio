@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import chalk from 'chalk'
 import semver from 'semver'
-import { detect } from 'detect-package-manager'
-import { readPackageUp } from 'read-pkg-up'
 import { Command } from 'commander'
+import { resolve } from 'import-meta-resolve'
 
 import { runProgram, getPackageVersion } from './utils.js'
 import {
@@ -13,6 +13,7 @@ import {
     INSTALL_COMMAND, DEV_FLAG, PMs
 } from './constants.js'
 import type { ProgramOpts } from './types'
+import { execSync } from 'node:child_process'
 
 const WDIO_COMMAND = 'wdio'
 let projectDir: string | undefined
@@ -58,55 +59,58 @@ export async function createWebdriverIO(opts: ProgramOpts) {
     const root = path.resolve(process.cwd(), projectDir || '')
 
     /**
-     * check if a package.json exists and if not create one
+     * find package manager that was used to create project
      */
-    const project = await readPackageUp({ cwd: root })
-    if (!project) {
+    const pm = PMs.find((pm) => (
+        // for pnpm check for "~/Library/pnpm/store/v3/..."
+        process.argv[1].includes(`${path.sep}${pm}${path.sep}`) ||
+        // for NPM and Yarn check for "~/.npm/npx/..." or "~/.yarn/bin/create-wdio"
+        process.argv[1].includes(`${path.sep}.${pm}${path.sep}`)
+    )) || 'npm'
+
+    const hasPackageJson = await fs.access(path.resolve(root, 'package.json')).then(() => true).catch(() => false)
+    if (!hasPackageJson) {
         await fs.mkdir(root, { recursive: true })
-        await fs.writeFile(
-            path.resolve(root, 'package.json'),
-            JSON.stringify({
-                name: 'my-new-project',
-                type: 'module'
-            }, null, 2)
-        )
-
-        /**
-         * find package manager that was used to create project
-         */
-        const pm = PMs.find((pm) => (
-            // for pnpm check for "~/Library/pnpm/store/v3/..."
-            process.argv[1].includes(`${path.sep}${pm}${path.sep}`) ||
-            // for NPM and Yarn check for "~/.npm/npx/..." or "~/.yarn/bin/create-wdio"
-            process.argv[1].includes(`${path.sep}.${pm}${path.sep}`)
-        )) || 'npm'
-
-        /**
-         * create a package-lock.json, yarn.lock or pnpm-lock.yaml so
-         * that `detect-package-manager` doesn't mark it as a default
-         * Yarn project
-         * @see https://github.com/egoist/detect-package-manager/issues/11
-         */
-        await runProgram(pm, ['install'], { cwd: root, stdio: 'ignore' })
+        await fs.writeFile(path.resolve(root, 'package.json'), JSON.stringify({
+            name: root.replace(/\/$/, '').split('/').pop(),
+            type: 'module'
+        }, null, 2))
     }
 
-    console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
-    const pm = await detect({ cwd: root })
-    const args = [INSTALL_COMMAND[pm]]
-    if (pm === 'yarn') {
-        args.push('--exact', '--cwd', root)
+    const cliInstalled = await isCLIInstalled(root)
+    if (!cliInstalled) {
+        console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
+        const args = [INSTALL_COMMAND[pm]]
+        if (pm === 'yarn') {
+            args.push('--exact', '--cwd', root)
+        }
+        if (opts.dev) {
+            args.push(DEV_FLAG[pm])
+        }
+        args.push(`@wdio/cli${npmTag}`)
+        await runProgram(pm, args, { cwd: root, stdio: 'ignore' })
+        console.log(chalk.green.bold('✔ Success!'))
     }
-    if (opts.dev) {
-        args.push(DEV_FLAG[pm])
-    }
-    args.push(`@wdio/cli${npmTag}`)
-    await runProgram(pm, args, { cwd: root, stdio: 'ignore' })
-    console.log(chalk.green.bold('✔ Success!'))
 
-    return runProgram('npx', [
-        WDIO_COMMAND,
+    return runProgram(pm === 'npm' ? 'npx' : pm, [
+        `${pm === 'npm' ? '' : 'run '}${WDIO_COMMAND}`,
         'config',
         ...(opts.yes ? ['--yes'] : [])
     ], { cwd: root })
 }
 
+async function isCLIInstalled(path: string) {
+    try {
+        // can be replaced with import.meta.resolve('@wdio/cli', new URL(`file:///${root}`).href) in the future
+        // check if the cli is installed in the project
+        resolve('@wdio/cli', pathToFileURL(path).href)
+        return true
+    } catch (error) {
+        // check of the cli is installed globally
+        const output = execSync('npm ls -g', { encoding: 'utf-8' })
+        if (output.includes('@wdio/cli')) {
+            return true
+        }
+        return false
+    }
+}
