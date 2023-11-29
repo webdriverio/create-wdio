@@ -11,7 +11,7 @@ import { ProgramOpts } from '../src/types'
 
 vi.mock('node:fs/promises', () => ({
     default: {
-        access: vi.fn().mockRejectedValue(new Error('not existing')),
+        access: vi.fn(),
         mkdir: vi.fn(),
         writeFile: vi.fn()
     }
@@ -48,6 +48,7 @@ beforeEach(() => {
     ├── npm@10.2.0
     └── yarn@1.22.19
     `)
+    vi.mocked(fs.access).mockResolvedValue()
 })
 
 test('run', async () => {
@@ -83,6 +84,8 @@ test('createWebdriverIO with Yarn', async () => {
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
 })
 
 test('createWebdriverIO with NPM', async () => {
@@ -99,6 +102,8 @@ test('createWebdriverIO with NPM', async () => {
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
 })
 
 test('createWebdriverIO with pnpm', async () => {
@@ -115,6 +120,8 @@ test('createWebdriverIO with pnpm', async () => {
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
 })
 
 test('creates a directory if it does not exist', async () => {
@@ -131,6 +138,8 @@ test('creates a directory if it does not exist', async () => {
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
 })
 
 test('does not install the @wdio/cli package when the @wdio/cli package is already installed in the current project', async () => {
@@ -143,6 +152,8 @@ test('does not install the @wdio/cli package when the @wdio/cli package is alrea
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(1)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
 })
 
 test('does not install the @wdio/cli package when the @wdio/cli package is already installed globally', async () => {
@@ -160,6 +171,8 @@ test('does not install the @wdio/cli package when the @wdio/cli package is alrea
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(1)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
 })
 
 test('runs the wdio config command with --yes when the yes option is set to true', async () => {
@@ -176,6 +189,27 @@ test('runs the wdio config command with --yes when the yes option is set to true
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
+})
+
+test('does create a package.json to be used by the wdio config command when one does not exist', async () => {
+    process.argv = ['', '~/.npm/npx/...']
+    vi.mocked(fs.access).mockRejectedValue(new Error('not existing'))
+    await createWebdriverIO({ npmTag: 'next' } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'npm',
+        ['install', '@wdio/cli@next'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(1)
+    expect(fs.writeFile).toBeCalledTimes(1)
 })
 
 test('installs the next version when the npmTag option is set to "next"', async () => {
@@ -192,10 +226,14 @@ test('installs the next version when the npmTag option is set to "next"', async 
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
 })
 
 afterEach(() => {
+    vi.mocked(fs.access).mockClear()
     vi.mocked(fs.mkdir).mockClear()
+    vi.mocked(fs.writeFile).mockClear()
     vi.mocked(runProgram).mockClear()
     vi.mocked(resolve).mockClear()
     vi.mocked(execSync).mockClear()

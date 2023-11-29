@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import chalk from 'chalk'
@@ -66,6 +67,15 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         // for NPM and Yarn check for "~/.npm/npx/..." or "~/.yarn/bin/create-wdio"
         process.argv[1].includes(`${path.sep}.${pm}${path.sep}`)
     )) || 'npm'
+
+    const hasPackageJson = await fs.access(path.resolve(root, 'package.json')).then(() => true).catch(() => false)
+    if (!hasPackageJson) {
+        await fs.mkdir(root, { recursive: true })
+        await fs.writeFile(path.resolve(root, 'package.json'), JSON.stringify({
+            name: root.replace(/\/$/, '').split('/').pop(),
+            type: 'module'
+        }, null, 2))
+    }
 
     let cliInstalled = false
     try {
