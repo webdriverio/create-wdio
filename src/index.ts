@@ -1,9 +1,9 @@
-import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import chalk from 'chalk'
 import semver from 'semver'
 import { Command } from 'commander'
+import { resolve } from 'import-meta-resolve'
 
 import { runProgram, getPackageVersion } from './utils.js'
 import {
@@ -66,18 +66,16 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         process.argv[1].includes(`${path.sep}.${pm}${path.sep}`)
     )) || 'npm'
 
-    const hasPackageJson = await fs.access(path.resolve(root, 'package.json')).then(() => true).catch(() => false)
-    if (!hasPackageJson) {
-        await fs.mkdir(root, { recursive: true })
-        await fs.writeFile(
-            path.resolve(root, 'package.json'),
-            JSON.stringify({
-                name: 'my-new-project',
-                type: 'module',
-            }, null, 2)
-        )
+    let cliInstalled = false
+    try {
+        // check if the cli already exists
+        // can be replaced with import.meta.resolve('@wdio/cli', new URL(`file:///${root}`).href) in the future
+        resolve('@wdio/cli', new URL(`file:///${root}`).href)
+        cliInstalled = true
+    } catch (error) {
+        // ignore error
     }
-    if (!opts.skipCLI) {
+    if (!cliInstalled) {
         console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
         const args = [INSTALL_COMMAND[pm]]
         if (pm === 'yarn') {
@@ -91,19 +89,10 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         console.log(chalk.green.bold('✔ Success!'))
     }
 
-    if (pm === 'npm') {
-        return runProgram('npx', [
-            WDIO_COMMAND,
-            'config',
-            ...(opts.yes ? ['--yes'] : [])
-        ], { cwd: root })
-    } else {
-        return runProgram(pm, [
-            'run',
-            WDIO_COMMAND,
-            'config',
-            ...(opts.yes ? ['--yes'] : [])
-        ], { cwd: root })
-    }
+    return runProgram(pm === 'npm' ? 'npx' : pm, [
+        `${pm === 'npm' ? '' : 'run '}${WDIO_COMMAND}`,
+        'config',
+        ...(opts.yes ? ['--yes'] : [])
+    ], { cwd: root })
 }
 

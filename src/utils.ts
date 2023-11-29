@@ -1,7 +1,9 @@
 import url from 'node:url'
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import { spawn, type SpawnOptions } from 'node:child_process'
+import type { SpawnOptions } from 'node:child_process'
+
+import spawn from 'cross-spawn'
 import chalk from 'chalk'
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
@@ -12,7 +14,7 @@ export const colorIt = chalk.rgb(234, 89, 6)
 process.on('SIGINT', () => printAndExit(undefined, 'SIGINT'))
 
 export function runProgram (command: string, args: string[], options: SpawnOptions) {
-    const child = spawn(command, args, { stdio: 'inherit', shell: true, ...options })
+    const child = spawn(command, args, { stdio: 'inherit', ...options })
     return new Promise<void>((resolve, rejects) => {
         let error: Error
         child.on('error', (e) => (error = e))

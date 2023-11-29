@@ -3,5 +3,4 @@ export interface ProgramOpts {
     dev: boolean
     yes: boolean
     npmTag: string
-    skipCLI: boolean
 }

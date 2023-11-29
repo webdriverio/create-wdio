@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import semver from 'semver'
+import { resolve } from 'import-meta-resolve'
 import { vi, test, expect, beforeEach, afterEach } from 'vitest'
 import { Command } from 'commander'
 
@@ -14,10 +15,9 @@ vi.mock('node:fs/promises', () => ({
         writeFile: vi.fn()
     }
 }))
-vi.mock('detect-package-manager', () => ({
-    detect: vi.fn().mockReturnValue('pnpm')
+vi.mock('import-meta-resolve', () => ({
+    resolve: vi.fn()
 }))
-vi.mock('read-pkg-up')
 vi.mock('commander')
 vi.mock('semver', () => ({
     default: {
@@ -36,6 +36,9 @@ const consoleLog = console.log.bind(console)
 beforeEach(() => {
     console.log = vi.fn()
     vi.mocked(runProgram).mockClear()
+    vi.mocked(resolve).mockImplementation(() => {
+        throw new Error('foo')
+    })
 })
 
 test('run', async () => {
@@ -62,11 +65,15 @@ test('createWebdriverIO with Yarn', async () => {
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'yarn',
-        ['run', 'wdio', 'config'],
+        ['add', '--exact', '--cwd', expect.any(String), '@wdio/cli@latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'yarn',
+        ['run wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
-    expect(fs.mkdir).toBeCalledTimes(1)
 })
 
 test('createWebdriverIO with NPM', async () => {
@@ -83,7 +90,6 @@ test('createWebdriverIO with NPM', async () => {
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
-    expect(fs.mkdir).toBeCalledTimes(1)
 })
 
 test('createWebdriverIO with pnpm', async () => {
@@ -96,11 +102,10 @@ test('createWebdriverIO with pnpm', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'pnpm',
-        ['run', 'wdio', 'config'],
+        ['run wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
-    expect(fs.mkdir).toBeCalledTimes(1)
 })
 
 test('creates a directory if it does not exist', async () => {
@@ -117,19 +122,18 @@ test('creates a directory if it does not exist', async () => {
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
-    expect(fs.mkdir).toBeCalledTimes(1)
 })
 
-test('does not install the @wdio/cli package when the skipCLI option is set to true', async () => {
+test('does not install the @wdio/cli package when the @wdio/cli package is already installed', async () => {
     process.argv = ['', '~/.npm/npx/...']
-    await createWebdriverIO({ npmTag: 'latest', skipCLI: true } as ProgramOpts)
+    vi.mocked(resolve).mockReturnValue('/Users/user/dev/my-monorepo/package.json')
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npx',
         ['wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(1)
-    expect(fs.mkdir).toBeCalledTimes(1)
 })
 
 test('runs the wdio config command with --yes when the yes option is set to true', async () => {
@@ -146,7 +150,6 @@ test('runs the wdio config command with --yes when the yes option is set to true
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
-    expect(fs.mkdir).toBeCalledTimes(1)
 })
 
 test('installs the next version when the npmTag option is set to "next"', async () => {
@@ -163,11 +166,11 @@ test('installs the next version when the npmTag option is set to "next"', async 
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
-    expect(fs.mkdir).toBeCalledTimes(1)
 })
 
 afterEach(() => {
     vi.mocked(fs.mkdir).mockClear()
     vi.mocked(runProgram).mockClear()
+    vi.mocked(resolve).mockClear()
     console.log = consoleLog
 })
