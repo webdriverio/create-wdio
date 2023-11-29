@@ -10,7 +10,7 @@ import { resolve } from 'import-meta-resolve'
 import { runProgram, getPackageVersion } from './utils.js'
 import {
     ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
-    INSTALL_COMMAND, DEV_FLAG, PMs
+    INSTALL_COMMAND, DEV_FLAG, PMs, EXECUTER,EXECUTE_COMMAND
 } from './constants.js'
 import type { ProgramOpts } from './types'
 import { execSync } from 'node:child_process'
@@ -62,9 +62,11 @@ export async function createWebdriverIO(opts: ProgramOpts) {
      * find package manager that was used to create project
      */
     const pm = PMs.find((pm) => (
-        // for pnpm check for "~/Library/pnpm/store/v3/..."
+        // for pnpm check "~/Library/pnpm/store/v3/..."
+        // for NPM check "~/.npm/npx/..."
+        // for Yarn check "~/.yarn/bin/create-wdio"
+        // for Bun check "~/.bun/bin/create-wdio"
         process.argv[1].includes(`${path.sep}${pm}${path.sep}`) ||
-        // for NPM and Yarn check for "~/.npm/npx/..." or "~/.yarn/bin/create-wdio"
         process.argv[1].includes(`${path.sep}.${pm}${path.sep}`)
     )) || 'npm'
 
@@ -92,11 +94,12 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         console.log(chalk.green.bold('✔ Success!'))
     }
 
-    return runProgram(pm === 'npm' ? 'npx' : pm, [
-        `${pm === 'npm' ? '' : 'run '}${WDIO_COMMAND}`,
+    return runProgram(EXECUTER[pm], [
+        EXECUTE_COMMAND[pm],
+        WDIO_COMMAND,
         'config',
         ...(opts.yes ? ['--yes'] : [])
-    ], { cwd: root })
+    ].filter(i => !!i), { cwd: root })
 }
 
 async function isCLIInstalled(path: string) {

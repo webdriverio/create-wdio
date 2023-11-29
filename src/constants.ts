@@ -64,6 +64,20 @@ export const INSTALL_COMMAND: Record<PM, string> = {
     bun: 'install'
 } as const
 
+export const EXECUTER: Record<PM, string> = {
+    npm: 'npx',
+    pnpm: 'pnpm',
+    yarn: 'yarn',
+    bun: 'bunx'
+} as const 
+
+export const EXECUTE_COMMAND: Record<PM, string> = {
+    npm: '',
+    pnpm: 'exec',
+    yarn: 'exec',
+    bun: ''
+} as const 
+
 export const DEV_FLAG: Record<PM, string> = {
     npm: '--save-dev',
     pnpm: '--save-dev',

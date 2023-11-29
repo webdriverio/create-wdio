@@ -80,7 +80,7 @@ test('createWebdriverIO with Yarn', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'yarn',
-        ['run wdio', 'config'],
+        ['exec', 'wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -116,7 +116,25 @@ test('createWebdriverIO with pnpm', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'pnpm',
-        ['run wdio', 'config'],
+        ['exec', 'wdio', 'config'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
+})
+
+test('createWebdriverIO with bun', async () => {
+    process.argv = ['', '~/.bun/bin/create-wdio']
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'bun',
+        ['install', '@wdio/cli@latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'bunx',
+        ['wdio', 'config'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
