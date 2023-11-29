@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import chalk from 'chalk'
 import semver from 'semver'
@@ -45,7 +46,6 @@ export async function run (operation = createWebdriverIO) {
         .option('-t, --npm-tag <tag>', 'Which NPM version you like to install, e.g. @next', DEFAULT_NPM_TAG)
         .option('-y, --yes', 'will fill in all config defaults without prompting', false)
         .option('-d, --dev', 'Install all packages as into devDependencies', true)
-        .option('-s, --skipCLI', 'Skip installation of cli', false)
 
         .allowUnknownOption()
         .on('--help', () => console.log())
@@ -77,20 +77,7 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         }, null, 2))
     }
 
-    let cliInstalled = false
-    try {
-        // can be replaced with import.meta.resolve('@wdio/cli', new URL(`file:///${root}`).href) in the future
-        // check if the cli is installed in the project
-        resolve('@wdio/cli', new URL(`file:///${root}`).href)
-        cliInstalled = true
-    } catch (error) {
-        // check of the cli is installed globally
-        const output = execSync('npm ls -g', { encoding: 'utf-8' })
-        if (output.includes('@wdio/cli')) {
-            cliInstalled = true
-        }
-        // ignore error
-    }
+    const cliInstalled = await isCLIInstalled(root)
     if (!cliInstalled) {
         console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
         const args = [INSTALL_COMMAND[pm]]
@@ -112,3 +99,18 @@ export async function createWebdriverIO(opts: ProgramOpts) {
     ], { cwd: root })
 }
 
+async function isCLIInstalled(path: string) {
+    try {
+        // can be replaced with import.meta.resolve('@wdio/cli', new URL(`file:///${root}`).href) in the future
+        // check if the cli is installed in the project
+        resolve('@wdio/cli', pathToFileURL(path).href)
+        return true
+    } catch (error) {
+        // check of the cli is installed globally
+        const output = execSync('npm ls -g', { encoding: 'utf-8' })
+        if (output.includes('@wdio/cli')) {
+            return true
+        }
+        return false
+    }
+}
