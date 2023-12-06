@@ -228,6 +228,10 @@ test('does create a package.json to be used by the wdio config command when one 
     expect(runProgram).toBeCalledTimes(2)
     expect(fs.mkdir).toBeCalledTimes(1)
     expect(fs.writeFile).toBeCalledTimes(1)
+    expect(fs.writeFile).toBeCalledWith(
+        expect.any(String),
+        JSON.stringify({ name: 'someProjectName', type: 'module' }, null, 2),
+    )
 })
 
 test('installs the next version when the npmTag option is set to "next"', async () => {
