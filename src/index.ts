@@ -72,7 +72,7 @@ export async function createWebdriverIO(opts: ProgramOpts) {
     if (!hasPackageJson) {
         await fs.mkdir(root, { recursive: true })
         await fs.writeFile(path.resolve(root, 'package.json'), JSON.stringify({
-            name: root.replace(/\/$/, '').split('/').pop(),
+            name: root.substring(root.lastIndexOf(path.sep) + 1),
             type: 'module'
         }, null, 2))
     }

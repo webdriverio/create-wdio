@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import * as path from 'node:path'
 
 const command: any = {}
 command.name = vi.fn().mockReturnValue(command)
@@ -6,7 +7,7 @@ command.version = vi.fn().mockReturnValue(command)
 command.usage = vi.fn().mockReturnValue(command)
 command.arguments = vi.fn().mockReturnValue(command)
 command.action = vi.fn((cb) => {
-    cb('someProjectName')
+    cb(`${path.sep}foo${path.sep}bar${path.sep}someProjectName`)
     return command
 })
 command.option = vi.fn().mockReturnValue(command)
