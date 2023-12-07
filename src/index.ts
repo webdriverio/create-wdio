@@ -83,9 +83,6 @@ export async function createWebdriverIO(opts: ProgramOpts) {
     if (!cliInstalled) {
         console.log(`\nInstalling ${chalk.bold('@wdio/cli')} to initialize project...`)
         const args = [INSTALL_COMMAND[pm]]
-        if (pm === 'yarn') {
-            args.push('--exact', '--cwd', root)
-        }
         if (opts.dev) {
             args.push(DEV_FLAG[pm])
         }
