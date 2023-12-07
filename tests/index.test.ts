@@ -75,7 +75,7 @@ test('createWebdriverIO with Yarn', async () => {
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'yarn',
-        ['add', '--exact', '--cwd', expect.any(String), '@wdio/cli@latest'],
+        ['add', '@wdio/cli@latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledWith(
