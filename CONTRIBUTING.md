@@ -52,7 +52,7 @@ To build and work on this project you need to install:
 To get the code base, have [git](https://git-scm.com/downloads) installed and run:
 
 ```sh
-$ git clone https://github.com/webdriverio/create-wdio.git
+$ git clone git@github.com:webdriverio/create-wdio.git
 ```
 
 then ensure to install all project dependencies:
