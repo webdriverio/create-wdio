@@ -38,23 +38,23 @@
     "watch": "npm run compile -- --watch"
   },
   "devDependencies": {
-    "@types/cross-spawn": "^6.0.2",
-    "@types/node": "^20.4.2",
-    "@types/semver": "^7.5.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "@vitest/coverage-v8": "^1.0.4",
-    "eslint": "^8.45.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-unicorn": "^49.0.0",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^20.10.5",
+    "@types/semver": "^7.5.6",
+    "@typescript-eslint/eslint-plugin": "^6.16.0",
+    "@typescript-eslint/parser": "^6.16.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-unicorn": "^50.0.1",
     "npm-run-all": "^4.1.5",
-    "release-it": "^17.0.0",
-    "typescript": "^5.1.6",
-    "vitest": "^1.0.4"
+    "release-it": "^17.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "commander": "^11.0.0",
+    "commander": "^11.1.0",
     "cross-spawn": "^7.0.3",
     "import-meta-resolve": "^4.0.0",
     "semver": "^7.5.4"
