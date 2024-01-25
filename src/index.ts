@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { execSync } from 'node:child_process'
 
 import chalk from 'chalk'
 import semver from 'semver'
@@ -13,7 +14,6 @@ import {
     INSTALL_COMMAND, DEV_FLAG, PMs, EXECUTER,EXECUTE_COMMAND
 } from './constants.js'
 import type { ProgramOpts } from './types'
-import { execSync } from 'node:child_process'
 
 const WDIO_COMMAND = 'wdio'
 let projectDir: string | undefined
@@ -109,7 +109,10 @@ async function isCLIInstalled(path: string) {
         // check of the cli is installed globally
         // wrap in try/catch as it can fail on Windows
         try {
-            const output = execSync('npm ls -g', { encoding: 'utf-8' })
+            const output = execSync('npm ls -g', {
+                encoding: 'utf-8',
+                stdio: ['ignore', 'pipe', 'ignore']
+            })
             if (output.includes('@wdio/cli')) {
                 return true
             }
