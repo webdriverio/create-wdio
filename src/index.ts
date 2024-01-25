@@ -107,10 +107,16 @@ async function isCLIInstalled(path: string) {
         return true
     } catch (error) {
         // check of the cli is installed globally
-        const output = execSync('npm ls -g', { encoding: 'utf-8' })
-        if (output.includes('@wdio/cli')) {
-            return true
+        // wrap in try/catch as it can fail on Windows
+        try {
+            const output = execSync('npm ls -g', { encoding: 'utf-8' })
+            if (output.includes('@wdio/cli')) {
+                return true
+            }
+        } catch (err) {
+            return false
         }
+
         return false
     }
 }
