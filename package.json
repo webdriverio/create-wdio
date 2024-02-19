@@ -41,7 +41,7 @@
     "@types/cross-spawn": "^6.0.6",
     "@types/node": "^20.10.5",
     "@types/semver": "^7.5.6",
-    "@typescript-eslint/eslint-plugin": "^6.16.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.16.0",
     "@vitest/coverage-v8": "^1.1.0",
     "eslint": "^8.56.0",
