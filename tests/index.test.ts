@@ -80,7 +80,7 @@ test('createWebdriverIO with Yarn', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'yarn',
-        ['exec', 'wdio', 'config'],
+        ['exec', 'wdio', 'config', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -98,7 +98,7 @@ test('createWebdriverIO with NPM', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config'],
+        ['wdio', 'config', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -116,7 +116,7 @@ test('createWebdriverIO with pnpm', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'pnpm',
-        ['exec', 'wdio', 'config'],
+        ['exec', 'wdio', 'config', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -134,7 +134,7 @@ test('createWebdriverIO with bun', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'bunx',
-        ['wdio', 'config'],
+        ['wdio', 'config', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -152,7 +152,7 @@ test('creates a directory if it does not exist', async () => {
     )
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config'],
+        ['wdio', 'config', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -166,7 +166,7 @@ test('does not install the @wdio/cli package when the @wdio/cli package is alrea
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config'],
+        ['wdio', 'config', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(1)
@@ -185,7 +185,7 @@ test('does not install the @wdio/cli package when the @wdio/cli package is alrea
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config'],
+        ['wdio', 'config', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(1)
@@ -203,7 +203,7 @@ test('runs the wdio config command with --yes when the yes option is set to true
     )
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config', '--yes'],
+        ['wdio', 'config', '--yes', '--npm-tag', 'latest'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -222,7 +222,7 @@ test('does create a package.json to be used by the wdio config command when one 
     )
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config'],
+        ['wdio', 'config', '--npm-tag', 'next'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)
@@ -244,7 +244,7 @@ test('installs the next version when the npmTag option is set to "next"', async 
     )
     expect(runProgram).toBeCalledWith(
         'npx',
-        ['wdio', 'config'],
+        ['wdio', 'config', '--npm-tag', 'next'],
         expect.any(Object)
     )
     expect(runProgram).toBeCalledTimes(2)

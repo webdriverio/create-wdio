@@ -95,7 +95,8 @@ export async function createWebdriverIO(opts: ProgramOpts) {
         EXECUTE_COMMAND[pm],
         WDIO_COMMAND,
         'config',
-        ...(opts.yes ? ['--yes'] : [])
+        ...(opts.yes ? ['--yes'] : []),
+        ...(opts.npmTag ? ['--npm-tag', opts.npmTag] : [])
     ].filter(i => !!i), { cwd: root })
 }
 
