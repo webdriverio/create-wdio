@@ -10,7 +10,7 @@ One command to create a fresh WebdriverIO project or add WebdriverIO to an exist
 
 `create-wdio` works on macOS, Windows, and Linux.<br>
 If something doesn’t work, please [file an issue](https://github.com/webdriverio/create-wdio/issues/new).<br>
-If you have questions or need help, please ask in our [Gitter Support Chat](https://gitter.im/webdriverio/webdriverio).
+If you have questions or need help, please ask in our [Discord Support channel](https://discord.webdriver.io).
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/webdriverio/wdio/main/.github/assets/demo.gif" alt="Example" />
