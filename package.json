@@ -43,14 +43,14 @@
     "@types/semver": "^7.5.8",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
-    "@vitest/coverage-v8": "^1.4.0",
+    "@vitest/coverage-v8": "^2.0.3",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-unicorn": "^54.0.0",
     "npm-run-all2": "^6.1.2",
     "release-it": "^17.1.1",
     "typescript": "^5.4.4",
-    "vitest": "^1.4.0"
+    "vitest": "^2.0.3"
   },
   "dependencies": {
     "chalk": "^5.3.0",
