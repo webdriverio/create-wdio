@@ -106,7 +106,7 @@ async function isCLIInstalled(path: string) {
         // check if the cli is installed in the project
         resolve('@wdio/cli', pathToFileURL(path).href)
         return true
-    } catch (error) {
+    } catch {
         // check of the cli is installed globally
         // wrap in try/catch as it can fail on Windows
         try {
@@ -117,7 +117,7 @@ async function isCLIInstalled(path: string) {
             if (output.includes('@wdio/cli')) {
                 return true
             }
-        } catch (err) {
+        } catch {
             return false
         }
 
