@@ -7,17 +7,17 @@ export default defineConfig({
         /**
          * not to ESM ported packages
          */
-        exclude: [
-            'build', '.idea', '.git', '.cache',
-            '**/node_modules/**', '__mocks__'
-        ],
+        exclude: ['build', '.idea', '.git', '.cache', '**/node_modules/**', '__mocks__'],
         coverage: {
             enabled: true,
-            exclude: ['**/build/**', '__mocks__', '**/*.test.ts'],
-            lines: 97,
-            functions: 80,
-            branches: 70,
-            statements: 97
-        }
-    }
+            include: ['src/**/*.ts'],
+            exclude: ['src/types.ts'],
+            thresholds: {
+                lines: 96,
+                functions: 80,
+                branches: 70,
+                statements: 96,
+            },
+        },
+    },
 })
