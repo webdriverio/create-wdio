@@ -34,7 +34,7 @@ _[`npx`](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f
 npm init wdio@latest ./e2e
 ```
 
-_[`npm init <initializer>`](https://docs.npmjs.com/cli/v7/commands/npm-init) is available in npm 6+_
+_[`npm init <initializer>`](https://docs.npmjs.com/cli/v10/commands/npm-init) is available in npm 6+_
 
 #### yarn
 
