@@ -34,8 +34,9 @@
     "release:major": "npm run release -- major",
     "test": "run-s build test:*",
     "test:eslint": "eslint -c ./.eslintrc.cjs ./src/**/*.ts ./tests/**/*.ts",
-    "test:unit": "vitest --run",
-    "watch": "npm run compile -- --watch"
+    "test:unit": "vitest run",
+    "watch": "npm run compile -- --watch",
+    "watch:test": "vitest watch"
   },
   "devDependencies": {
     "@types/cross-spawn": "^6.0.6",
