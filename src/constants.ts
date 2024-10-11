@@ -53,7 +53,7 @@ export const PROGRAM_TITLE = `
 
 export const UNSUPPORTED_NODE_VERSION = (
     '⚠️  Unsupported Node.js Version Error ⚠️\n' +
-    `You are using Node.js ${process.version} which is to old to be used with WebdriverIO.\n` +
+    `You are using Node.js ${process.version} which is too old to be used with WebdriverIO.\n` +
     'Please update to Node.js v16 to continue.\n'
 )
 
