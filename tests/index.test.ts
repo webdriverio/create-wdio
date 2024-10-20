@@ -71,7 +71,7 @@ test('does not run if Node.js version is too low', async () => {
 })
 
 test('createWebdriverIO with Yarn', async () => {
-    process.argv = ['', '~/.yarn/bin/create-wdio']
+    vi.stubEnv('npm_config_user_agent', 'yarn/4.5.0 npm/? node/v20.11.0 darwin arm64')
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'yarn',
@@ -89,7 +89,43 @@ test('createWebdriverIO with Yarn', async () => {
 })
 
 test('createWebdriverIO with NPM', async () => {
-    process.argv = ['', '~/.npm/npx/...']
+    vi.stubEnv('npm_config_user_agent', 'npm/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'npm',
+        ['install', '@wdio/cli@latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config', '--npm-tag', 'latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
+})
+
+test('createWebdriverIO with invalid agent should run npm commands', async () => {
+    vi.stubEnv('npm_config_user_agent', 'invalid/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
+    await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
+    expect(runProgram).toBeCalledWith(
+        'npm',
+        ['install', '@wdio/cli@latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledWith(
+        'npx',
+        ['wdio', 'config', '--npm-tag', 'latest'],
+        expect.any(Object)
+    )
+    expect(runProgram).toBeCalledTimes(2)
+    expect(fs.mkdir).toBeCalledTimes(0)
+    expect(fs.writeFile).toBeCalledTimes(0)
+})
+
+test('createWebdriverIO with no npm user agent should run npm commands', async () => {
+    vi.stubEnv('npm_config_user_agent', undefined)
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npm',
@@ -107,7 +143,7 @@ test('createWebdriverIO with NPM', async () => {
 })
 
 test('createWebdriverIO with pnpm', async () => {
-    process.argv = ['', '~/Library/pnpm/store/v3/...']
+    vi.stubEnv('npm_config_user_agent', 'pnpm/9.10.0 npm/? node/v20.11.0 darwin arm64')
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'pnpm',
@@ -125,7 +161,7 @@ test('createWebdriverIO with pnpm', async () => {
 })
 
 test('createWebdriverIO with bun', async () => {
-    process.argv = ['', '~/.bun/bin/create-wdio']
+    vi.stubEnv('npm_config_user_agent', 'bun/1.1.27 npm/? node/v22.6.0 darwin arm64')
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'bun',
@@ -143,7 +179,7 @@ test('createWebdriverIO with bun', async () => {
 })
 
 test('creates a directory if it does not exist', async () => {
-    process.argv = ['', '~/.npm/npx/...']
+    vi.stubEnv('npm_config_user_agent', 'npm/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
     await createWebdriverIO({ npmTag: 'latest', dev: true } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npm',
@@ -161,7 +197,7 @@ test('creates a directory if it does not exist', async () => {
 })
 
 test('does not install the @wdio/cli package when the @wdio/cli package is already installed in the current project', async () => {
-    process.argv = ['', '~/.npm/npx/...']
+    vi.stubEnv('npm_config_user_agent', 'npm/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
     vi.mocked(resolve).mockReturnValue('/Users/user/dev/my-monorepo/package.json')
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
@@ -175,7 +211,7 @@ test('does not install the @wdio/cli package when the @wdio/cli package is alrea
 })
 
 test('does not install the @wdio/cli package when the @wdio/cli package is already installed globally', async () => {
-    process.argv = ['', '~/.npm/npx/...']
+    vi.stubEnv('npm_config_user_agent', 'npm/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
     vi.mocked(execSync).mockReturnValue(`
     ├── @wdio/cli@8.24.3
     ├── corepack@0.20.0
@@ -194,7 +230,7 @@ test('does not install the @wdio/cli package when the @wdio/cli package is alrea
 })
 
 test('runs the wdio config command with --yes when the yes option is set to true', async () => {
-    process.argv = ['', '~/.npm/npx/...']
+    vi.stubEnv('npm_config_user_agent', 'npm/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
     await createWebdriverIO({ npmTag: 'latest', yes: true } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npm',
@@ -212,7 +248,7 @@ test('runs the wdio config command with --yes when the yes option is set to true
 })
 
 test('does create a package.json to be used by the wdio config command when one does not exist', async () => {
-    process.argv = ['', '~/.npm/npx/...']
+    vi.stubEnv('npm_config_user_agent', 'npm/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
     vi.mocked(fs.access).mockRejectedValue(new Error('not existing'))
     await createWebdriverIO({ npmTag: 'next' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
@@ -235,7 +271,7 @@ test('does create a package.json to be used by the wdio config command when one 
 })
 
 test('installs the next version when the npmTag option is set to "next"', async () => {
-    process.argv = ['', '~/.npm/npx/...']
+    vi.stubEnv('npm_config_user_agent', 'npm/10.2.4 node/v20.11.0 darwin arm64 workspaces/false')
     await createWebdriverIO({ npmTag: 'next' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npm',
