@@ -11,14 +11,14 @@ import { resolve } from 'import-meta-resolve'
 import { runProgram, getPackageVersion } from './utils.js'
 import {
     ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
-    INSTALL_COMMAND, DEV_FLAG, PMs, EXECUTER,EXECUTE_COMMAND
+    INSTALL_COMMAND, DEV_FLAG, PMs, EXECUTER, EXECUTE_COMMAND
 } from './constants.js'
 import type { ProgramOpts } from './types'
 
 const WDIO_COMMAND = 'wdio'
 let projectDir: string | undefined
 
-export async function run (operation = createWebdriverIO) {
+export async function run(operation = createWebdriverIO) {
     const version = await getPackageVersion()
 
     /**
