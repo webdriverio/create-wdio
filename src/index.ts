@@ -11,14 +11,14 @@ import { resolve } from 'import-meta-resolve'
 import { runProgram, getPackageVersion } from './utils.js'
 import {
     ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
-    INSTALL_COMMAND, DEV_FLAG, PMs, EXECUTER,EXECUTE_COMMAND
+    INSTALL_COMMAND, DEV_FLAG, PMs, EXECUTER, EXECUTE_COMMAND
 } from './constants.js'
 import type { ProgramOpts } from './types'
 
 const WDIO_COMMAND = 'wdio'
 let projectDir: string | undefined
 
-export async function run (operation = createWebdriverIO) {
+export async function run(operation = createWebdriverIO) {
     const version = await getPackageVersion()
 
     /**
@@ -54,6 +54,22 @@ export async function run (operation = createWebdriverIO) {
     return operation(program.opts())
 }
 
+/**
+ * detects the package manager that was used
+ * uses the environment variable `npm_config_user_agent` to detect the package manager
+ * falls back to `npm` if no package manager could be detected
+ */
+function detectPackageManager() {
+    if (!process.env.npm_config_user_agent) {
+        return 'npm'
+    }
+    const detectedPM = process.env.npm_config_user_agent.split('/')[0].toLowerCase()
+
+    const matchedPM = PMs.find(pm => pm.toLowerCase() === detectedPM)
+
+    return matchedPM || 'npm'
+}
+
 export async function createWebdriverIO(opts: ProgramOpts) {
     const npmTag = opts.npmTag.startsWith('@') ? opts.npmTag : `@${opts.npmTag}`
     const root = path.resolve(process.cwd(), projectDir || '')
@@ -61,14 +77,7 @@ export async function createWebdriverIO(opts: ProgramOpts) {
     /**
      * find package manager that was used to create project
      */
-    const pm = PMs.find((pm) => (
-        // for pnpm check "~/Library/pnpm/store/v3/..."
-        // for NPM check "~/.npm/npx/..."
-        // for Yarn check "~/.yarn/bin/create-wdio"
-        // for Bun check "~/.bun/bin/create-wdio"
-        process.argv[1].includes(`${path.sep}${pm}${path.sep}`) ||
-        process.argv[1].includes(`${path.sep}.${pm}${path.sep}`)
-    )) || 'npm'
+    const pm = detectPackageManager()
 
     const hasPackageJson = await fs.access(path.resolve(root, 'package.json')).then(() => true).catch(() => false)
     if (!hasPackageJson) {
