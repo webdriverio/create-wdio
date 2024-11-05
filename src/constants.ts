@@ -54,7 +54,7 @@ export const PROGRAM_TITLE = `
 export const UNSUPPORTED_NODE_VERSION = (
     '⚠️  Unsupported Node.js Version Error ⚠️\n' +
     `You are using Node.js ${process.version} which is too old to be used with WebdriverIO.\n` +
-    'Please update to Node.js v16 to continue.\n'
+    'Please update to Node.js v20 to continue.\n'
 )
 
 export const INSTALL_COMMAND: Record<PM, string> = {
@@ -69,14 +69,14 @@ export const EXECUTER: Record<PM, string> = {
     pnpm: 'pnpm',
     yarn: 'yarn',
     bun: 'bunx'
-} as const 
+} as const
 
 export const EXECUTE_COMMAND: Record<PM, string> = {
     npm: '',
     pnpm: 'exec',
     yarn: 'exec',
     bun: ''
-} as const 
+} as const
 
 export const DEV_FLAG: Record<PM, string> = {
     npm: '--save-dev',

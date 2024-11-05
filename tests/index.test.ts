@@ -64,10 +64,12 @@ test('run', async () => {
 })
 
 test('does not run if Node.js version is too low', async () => {
+    const consoleLog = vi.spyOn(console, 'log')
     vi.mocked(semver.satisfies).mockReturnValue(false)
     const op = vi.fn().mockResolvedValue({})
     await run(op)
     expect(op).toBeCalledTimes(0)
+    expect(consoleLog).toBeCalledWith(expect.stringContaining('Please update to Node.js v20 to continue.'))
 })
 
 test('createWebdriverIO with Yarn', async () => {
@@ -125,7 +127,7 @@ test('createWebdriverIO with invalid agent should run npm commands', async () =>
 })
 
 test('createWebdriverIO with no npm user agent should run npm commands', async () => {
-    vi.stubEnv('npm_config_user_agent', undefined)
+    vi.stubEnv('npm_config_user_agent', '')
     await createWebdriverIO({ npmTag: 'latest' } as ProgramOpts)
     expect(runProgram).toBeCalledWith(
         'npm',
