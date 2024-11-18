@@ -7,7 +7,7 @@ import { execSync } from 'node:child_process'
 
 import { run, createWebdriverIO } from '../src'
 import { runProgram } from '../src/utils'
-import { ProgramOpts } from '../src/types'
+import type { ProgramOpts } from '../src/types'
 
 vi.mock('node:fs/promises', () => ({
     default: {
