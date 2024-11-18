@@ -33,7 +33,7 @@
     "release:minor": "npm run release -- minor",
     "release:major": "npm run release -- major",
     "test": "run-s build test:*",
-    "test:eslint": "eslint -c ./eslint.config.js ./src/**/*.ts ./tests/**/*.ts",
+    "test:lint": "eslint .",
     "test:unit": "vitest run",
     "watch": "npm run compile -- --watch",
     "watch:test": "vitest watch"

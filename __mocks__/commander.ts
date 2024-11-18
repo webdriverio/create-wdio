@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 import * as path from 'node:path'
 
-const command: any = {}
+const command: Record<string, unknown> = {}
 command.name = vi.fn().mockReturnValue(command)
 command.version = vi.fn().mockReturnValue(command)
 command.usage = vi.fn().mockReturnValue(command)
