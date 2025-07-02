@@ -21,16 +21,15 @@ type CopyOptions ={
 }
 
 async function copy(options:CopyOptions) {
-    console.log(`==== ${options.resolveFrom}`)
     for (const asset of options.assets) {
         const files = await fg(path.resolve(asset.from.dir, asset.from.pattern), { cwd: options.resolveFrom })
         for (const file of files) {
-            console.log(file)
             const to = path.resolve(asset.to, path.relative(asset.from.dir, file))
             shell.mkdir('-p', path.dirname(to))
             shell.cp(file, path.dirname(to))
         }
     }
+    console.log('\n✅ completely copied.')
 }
 
 copy({

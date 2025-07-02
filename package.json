@@ -27,9 +27,13 @@
       "types": "./build/index.d.ts",
       "import": "./build/index.js"
     },
-    "./commands": {
-      "types": "./build/commands/index.d.ts",
-      "import": "./build/commands/index.js"
+    "./config/cli": {
+      "types": "./build/config/cli.d.ts",
+      "import": "./build/config/cli.js"
+    },
+    "./install/cli": {
+      "types": "./build/install/cli.d.ts",
+      "import": "./build/install/cli.js"
     },
     "./utils": {
       "types": "./build/utils/index.d.ts",
@@ -38,9 +42,10 @@
   },
   "type": "module",
   "scripts": {
-    "build": "run-s clean compile",
-    "clean": "rm -rf tsconfig.tsbuildinfo ./build ./coverage",
-    "compile": "tsc -p ./tsconfig.json",
+    "build": "run-s build:*",
+    "build:clean": "rm -rf tsconfig.tsbuildinfo ./build ./coverage",
+    "build:compile": "tsc -p ./tsconfig.json",
+    "build:copy": "tsx scripts/copy.ts",
     "release": "release-it --github.release",
     "release:ci": "npm run release -- --ci --npm.skipChecks --no-git.requireCleanWorkingDir",
     "release:patch": "npm run release -- patch",

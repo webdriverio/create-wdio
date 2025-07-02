@@ -1,7 +1,7 @@
 import os from 'node:os'
 import fs from 'node:fs/promises'
 import { vi, test, expect, describe, beforeEach, it } from 'vitest'
-import { canAccessConfigPath, missingConfigurationPrompt, parseAnswers, runConfigCommand } from '../../src/commands/utils.js'
+import { canAccessConfigPath, missingConfigurationPrompt, parseAnswers, runConfigCommand } from '../../src/cli/utils.js'
 import { createPackageJSON, npmInstall, createWDIOConfig, createWDIOScript, runAppiumInstaller, getAnswers } from '../../src/utils.js'
 import { BackendChoice } from '../../src/constants.js'
 

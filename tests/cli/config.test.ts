@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import {
     builder,
     handler,
-} from '../../src/commands/config.js'
+} from '../../src/cli/config.js'
 import {
     getAnswers,
 } from '../../src/utils.js'

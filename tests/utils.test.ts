@@ -22,12 +22,12 @@ import { runProgram, getPackageVersion,
     detectCompiler,
 
 } from '../src/utils'
-import { parseAnswers } from '../src/commands/utils'
+import { parseAnswers } from '../src/cli/utils'
 import path from 'node:path'
 import { readPackageUp } from 'read-pkg-up'
 import type { Questionnair } from '../src/types'
 import inquirer from 'inquirer'
-import { installPackages } from '../src/commands/install'
+import { installPackages } from '../src/cli/install.js'
 
 const consoleLog = console.log.bind(console)
 const processExit = process.exit.bind(process)
@@ -52,6 +52,7 @@ vi.mock('inquirer')
 vi.mock('read-pkg-up')
 vi.mock('ejs')
 vi.mock('execa', () => ({
+    execa: vi.fn(()=>({ stdout:'', stderr:'', exitCode:0 })),
     $: vi.fn().mockReturnValue(async (sh: string) => sh)
 }))
 vi.mock('recursive-readdir', () => ({
@@ -60,7 +61,7 @@ vi.mock('recursive-readdir', () => ({
         '/foo/bar/example.e2e.js'
     ] as any)
 }))
-vi.mock('../src/commands/install', () => ({
+vi.mock('../src/install.js', () => ({
     installPackages: vi.fn(),
     getInstallCommand: vi.fn().mockReturnValue('npm install foo bar --save-dev')
 }))
@@ -559,7 +560,6 @@ test('setupTypeScript', async () => {
     expect(vi.mocked(fs.writeFile).mock.calls[0][1]).toMatchSnapshot()
 })
 
-
 test('setupTypeScript does not create tsconfig.json if TypeScript was not selected', async () => {
     const parsedAnswers = {
         isUsingTypeScript: false,
@@ -627,7 +627,6 @@ test('createWDIOConfig', async () => {
             .endsWith(path.resolve('wdio.conf.js'))
     ).toBe(true)
 })
-
 
 test('runAppiumInstaller', async () => {
     expect(await runAppiumInstaller({ e2eEnvironment: 'web' } as any))

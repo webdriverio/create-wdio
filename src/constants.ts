@@ -12,9 +12,7 @@ export const colorIt = chalk.rgb(234, 89, 6)
 export type PACKAGE_MANAGER = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
 export const DEFAULT_NPM_TAG = 'latest'
-// TODO: replace developing banner
 export const ASCII_ROBOT = `
-                 #####      DEVELOPING      #####
                  -:...........................-:.
                  +                              +
               \`\` +      \`...\`        \`...\`      + \`

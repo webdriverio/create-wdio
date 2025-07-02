@@ -1,13 +1,14 @@
 import fs from 'node:fs/promises'
 import semver from 'semver'
 import { resolve } from 'import-meta-resolve'
-import { vi, test, expect, beforeEach, afterEach } from 'vitest'
+import { vi, test, expect, beforeEach, afterEach, describe, it } from 'vitest'
 import { Command } from 'commander'
 import { execSync } from 'node:child_process'
-
+import { execa } from 'execa'
 import { run, createWebdriverIO } from '../src'
 import { runProgram } from '../src/utils'
 import type { ProgramOpts } from '../src/types'
+import { getInstallCommand, installPackages } from '../src/install'
 
 vi.mock('node:fs/promises', () => ({
     default: {
@@ -28,13 +29,18 @@ vi.mock('semver', () => ({
         satisfies: vi.fn().mockReturnValue(true)
     }
 }))
-vi.mock('../src/utils.js', () => ({
-    runProgram: vi.fn(),
-    colorItBold: vi.fn((log) => log),
-    colorIt: vi.fn((log) => log),
-    getPackageVersion: vi.fn().mockReturnValue('0.1.1'),
-    shouldUseYarn: vi.fn().mockReturnValue(true)
-}))
+vi.mock('../src/utils.js', async (importActual) => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    const actual = await importActual<typeof import('../src/utils.js')>()
+    return {
+        ...actual,
+        runProgram: vi.fn(),
+        colorItBold: vi.fn((log) => log),
+        colorIt: vi.fn((log) => log),
+        getPackageVersion: vi.fn().mockReturnValue('0.1.1'),
+        shouldUseYarn: vi.fn().mockReturnValue(true)
+    }
+})
 
 const consoleLog = console.log.bind(console)
 beforeEach(() => {
@@ -298,4 +304,30 @@ afterEach(() => {
     vi.mocked(resolve).mockClear()
     vi.mocked(execSync).mockClear()
     console.log = consoleLog
+})
+
+vi.mock('execa', () => ({
+    execa: vi.fn().mockResolvedValue({ stdout: 'foo', stderr: 'bar', exitCode: 0 })
+}))
+
+vi.mock('detect', () => ({
+    detect: vi.fn().mockResolvedValue('pnpm')
+}))
+
+describe('install', () => {
+    it('installPackages passing', async () => {
+        expect(await installPackages('/foo/bar', ['foo', 'bar'], true))
+            .toBe(true)
+    })
+
+    it('installPackages failing', async () => {
+        vi.mocked(execa).mockResolvedValue({ stdout: 'foo', stderr: 'bar', exitCode: 1 } as any)
+        expect(await installPackages('/foo/bar', ['foo', 'bar'], false))
+            .toBe(false)
+    })
+
+    it('getInstallCommand', () => {
+        expect(getInstallCommand('pnpm', ['foo', 'bar'], true))
+            .toBe('pnpm add foo bar --save-dev')
+    })
 })

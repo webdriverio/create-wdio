@@ -58,3 +58,4 @@ export async function handler(argv: ConfigCommandArguments, runConfigCmd = runCo
 }
 
 export { missingConfigurationPrompt  } from './utils.js'
+export { formatConfigFilePaths } from '../utils.js'
