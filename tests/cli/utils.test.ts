@@ -119,6 +119,7 @@ test.skipIf(isUsingWindows)('parseAnswers', async () => {
         backend: BackendChoice.Local,
         specs: '/tmp/foobar/specs',
         pages: '/tmp/foobar/pageobjects',
+        stepDefinitions: '/tmp/foobar/steps',
         generateTestFiles: true,
         usePageObjects: true,
         baseUrl: 'http://localhost',
