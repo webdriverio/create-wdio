@@ -20,6 +20,9 @@ import { runProgram, getPackageVersion,
     createWDIOScript,
     runAppiumInstaller,
     detectCompiler,
+    findInConfig,
+    replaceConfig,
+    formatConfigFilePaths,
 
 } from '../src/utils'
 import { parseAnswers } from '../src/cli/utils'
@@ -327,6 +330,77 @@ describe('generateTestFiles', () => {
 
 })
 
+describe('findInConfig', () => {
+    it('finds text for services', () => {
+        const str = "services: ['foo', 'bar'],"
+
+        expect(findInConfig(str, 'service')).toMatchObject([
+            'services: [\'foo\', \'bar\']'
+        ])
+    })
+
+    it('finds text for frameworks', () => {
+        const str = "framework: 'mocha'"
+
+        expect(findInConfig(str, 'framework')).toMatchObject([
+            "framework: 'mocha'"
+        ])
+    })
+})
+
+describe('formatConfigFilePaths', () => {
+    it('should format properly', async () => {
+
+        expect(await formatConfigFilePaths('/path/to/foo.js')).toMatchObject({
+            fullPath:'/path/to/foo.js',
+            fullPathNoExtension:'/path/to/foo'
+        })
+    })
+})
+
+describe('replaceConfig', () => {
+    it('correctly changes framework', () => {
+        const fakeConfig = `exports.config = {
+    runner: 'local',
+    specs: [
+        './test/specs/**/*.js'
+    ],
+    framework: 'mocha',
+}`
+
+        expect(replaceConfig(fakeConfig, 'framework', 'jasmine')).toBe(
+            `exports.config = {
+    runner: 'local',
+    specs: [
+        './test/specs/**/*.js'
+    ],
+    framework: 'jasmine',
+}`
+        )
+    })
+
+    it('correctly changes service', () => {
+        const fakeConfig = `exports.config = {
+    runner: 'local',
+    specs: [
+        './test/specs/**/*.js'
+    ],
+    services: [],
+    framework: 'mocha',
+}`
+        expect(replaceConfig(fakeConfig, 'service', 'sauce')).toBe(
+            `exports.config = {
+    runner: 'local',
+    specs: [
+        './test/specs/**/*.js'
+    ],
+    services: ['sauce'],
+    framework: 'mocha',
+}`
+        )
+    })
+})
+
 describe('getPathForFileGeneration', () => {
     it('Cucumber with pageobjects default values', () => {
         const generatedPaths = getPathForFileGeneration({
@@ -600,7 +674,8 @@ test('setupTypeScript does not create tsconfig.json if there is already one', as
 
 describe.skip('createWDIOScript', () => {
     it('can run with success', async () => {
-        expect(await createWDIOScript({ wdioConfigPath: '/foo/bar/wdio.conf.js' } as any))
+        const promise = createWDIOScript({ wdioConfigPath: '/foo/bar/wdio.conf.js' } as any)
+        expect(await promise)
             .toBe(true)
         expect(cp.spawn).toBeCalledTimes(1)
     })

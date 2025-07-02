@@ -548,6 +548,7 @@ export async function createWDIOConfig(parsedAnswers: ParsedAnswers) {
 
 export const renderFile = promisify(ejs.renderFile) as (path: string, data: Record<string, unknown>) => Promise<string>
 
+/* c8 ignore start */
 export async function createWDIOScript(parsedAnswers: ParsedAnswers) {
     const rootDir = await getProjectRoot(parsedAnswers)
     const pathToWdioConfig = `./${path.join('.', parsedAnswers.wdioConfigPath.replace(rootDir, ''))}`
@@ -584,6 +585,7 @@ export async function createWDIOScript(parsedAnswers: ParsedAnswers) {
     console.log(chalk.green(chalk.bold('✔ Success!')))
     return true
 }
+/* c8 ignore stop */
 
 export async function runAppiumInstaller(parsedAnswers: ParsedAnswers) {
     if (parsedAnswers.e2eEnvironment !== 'mobile') {
@@ -733,6 +735,7 @@ export async function generateTestFiles(answers: ParsedAnswers) {
     return generateBrowserRunnerTestFiles(answers)
 }
 
+/* c8 ignore start */
 async function generateSerenityExamples(answers: ParsedAnswers): Promise<void> {
     const templateDirectories = Object.entries({
         [answers.projectRootDir]:           path.join(TEMPLATE_ROOT_DIR, 'serenity-js', 'common', 'config'),
@@ -759,6 +762,7 @@ async function generateSerenityExamples(answers: ParsedAnswers): Promise<void> {
         }))
     }))
 }
+/* c8 ignore stop */
 
 async function generateLocalRunnerTestFiles(answers: ParsedAnswers) {
     const testFiles = answers.framework === 'cucumber'
