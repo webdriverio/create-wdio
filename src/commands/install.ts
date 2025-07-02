@@ -1,46 +1,134 @@
-import type { PM } from '../constants.js'
-import { detectPackageManager } from '../utils.js'
-import { execa } from 'execa'
-const installCommand: Record<PM, string> = {
-    npm: 'install',
-    pnpm: 'add',
-    yarn: 'add',
-    bun: 'install'
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+
+import type { Argv } from 'yargs'
+
+import {
+    replaceConfig,
+    findInConfig,
+    addServiceDeps,
+    detectPackageManager,
+    formatConfigFilePaths
+} from '../utils.js'
+import { SUPPORTED_PACKAGES } from '../constants.js'
+
+import {  CLI_EPILOGUE } from '../constants.js'
+import type { InstallCommandArguments, SupportedPackage } from '../types.js'
+
+import { canAccessConfigPath, missingConfigurationPrompt } from './utils.js'
+import { convertPackageHashToObject, getProjectRoot } from '../utils.js'
+import { installPackages } from '../install.js'
+
+const supportedInstallations = {
+    runner: SUPPORTED_PACKAGES.runner.map(({ value }) => convertPackageHashToObject(value)),
+    plugin: SUPPORTED_PACKAGES.plugin.map(({ value }) => convertPackageHashToObject(value)),
+    service: SUPPORTED_PACKAGES.service.map(({ value }) => convertPackageHashToObject(value)),
+    reporter: SUPPORTED_PACKAGES.reporter.map(({ value }) => convertPackageHashToObject(value)),
+    framework: SUPPORTED_PACKAGES.framework.map(({ value }) => convertPackageHashToObject(value))
 }
 
-const devFlag: Record<PM, string> = {
-    npm: '--save-dev',
-    pnpm: '--save-dev',
-    yarn: '--dev',
-    bun: '--dev'
-}
-export async function installPackages (cwd: string, packages: string[], dev: boolean) {
-    const pm = detectPackageManager()
-    const devParam = dev ? devFlag[pm] : ''
+export const command = 'install <type> <name>'
+export const desc = [
+    'Add a `reporter`, `service`, or `framework` to your WebdriverIO project.',
+    'The command installs the package from NPM, adds it to your package.json',
+    'and modifies the wdio.conf.js accordingly.'
+].join(' ')
 
-    console.log('\n')
-    const p = execa(pm, [installCommand[pm], ...packages, devParam], {
-        cwd,
-        stdout: process.stdout,
-        stderr: process.stderr
-    })
-    const { stdout, stderr, exitCode } = await p
+export const cmdArgs = {
+    config: {
+        desc: 'Location of your WDIO configuration (default: wdio.conf.(js|ts|cjs|mjs))',
+    },
+} as const
 
-    if (exitCode !== 0) {
-        const cmd = getInstallCommand(pm, packages, dev)
-        const customError = (
-            '⚠️ An unknown error happened! Please retry ' +
-            `installing dependencies via "${cmd}"\n\n` +
-            `Error: ${stderr || stdout || 'unknown'}`
-        )
-        console.error(customError)
-        return false
+export const builder = (yargs: Argv) => {
+    yargs
+        .options(cmdArgs)
+        .epilogue(CLI_EPILOGUE)
+        .help()
+
+    for (const [type, plugins] of Object.entries(supportedInstallations)) {
+        for (const plugin of plugins) {
+            yargs.example(`$0 install ${type} ${plugin.short}`, `Install ${plugin.package}`)
+        }
     }
 
-    return true
+    return yargs
 }
 
-export function getInstallCommand (pm: PM, packages: string[], dev: boolean) {
-    const devParam = dev ? devFlag[pm] : ''
-    return `${pm} ${installCommand[pm]} ${packages.join(' ')} ${devParam}`
+export async function handler(argv: InstallCommandArguments) {
+    /**
+     * type = service | reporter | framework
+     * name = names for the supported service or reporter
+     */
+    const { type, name, config } = argv
+
+    /**
+     * verify for supported types via `supportedInstallations` keys
+     */
+    if (!Object.keys(supportedInstallations).includes(type)) {
+        console.log(`Type ${type} is not supported.`)
+        process.exit(0)
+    }
+
+    /**
+     * verify if the name of the `type` is valid
+     */
+    const options = supportedInstallations[type].map((pkg) => pkg.short)
+    if (!options.find((pkg) => pkg === name)) {
+        console.log(
+            `Error: ${name} is not a supported ${type}.\n\n` +
+            `Available options for a ${type} are:\n` +
+            `- ${options.join('\n- ')}`
+        )
+        process.exit(0)
+    }
+
+    const defaultPath = path.resolve(process.cwd(), 'wdio.conf')
+    const wdioConfPathWithNoExtension = config
+        ? (await formatConfigFilePaths(config)).fullPathNoExtension
+        : defaultPath
+    const wdioConfPath = await canAccessConfigPath(wdioConfPathWithNoExtension)
+    if (!wdioConfPath) {
+        try {
+            await missingConfigurationPrompt('install', wdioConfPathWithNoExtension)
+            return handler(argv)
+        } catch {
+            process.exit(1)
+        }
+    }
+
+    const configFile = await fs.readFile(wdioConfPath, { encoding: 'utf-8' })
+    const match = findInConfig(configFile, type)
+    const projectRoot = await getProjectRoot()
+
+    if (match && match[0].includes(name)) {
+        console.log(`The ${type} ${name} is already part of your configuration.`)
+        process.exit(0)
+    }
+
+    const selectedPackage = supportedInstallations[type].find(({ short }) => short === name) as SupportedPackage
+    const pkgsToInstall = selectedPackage ? [selectedPackage.package] : []
+
+    addServiceDeps(selectedPackage ? [selectedPackage] : [], pkgsToInstall, true)
+
+    const pm = detectPackageManager()
+    console.log(`Installing "${selectedPackage.package}" using ${pm}.`)
+    const success = await installPackages(projectRoot, pkgsToInstall, true)
+
+    if (!success) {
+        process.exit(1)
+    }
+
+    console.log(`Package "${selectedPackage.package}" installed successfully.`)
+    const newConfig = replaceConfig(configFile, type, name)
+
+    if (!newConfig) {
+        throw new Error(`Couldn't find "${type}" property in ${path.basename(wdioConfPath)}`)
+    }
+
+    await fs.writeFile(wdioConfPath, newConfig, { encoding: 'utf-8' })
+    console.log('Your wdio.conf.js file has been updated.')
+
+    process.exit(0)
 }

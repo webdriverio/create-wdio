@@ -22,6 +22,20 @@
   "bin": {
     "create-wdio": "./bin/wdio.js"
   },
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js"
+    },
+    "./commands": {
+      "types": "./build/commands/index.d.ts",
+      "import": "./build/commands/index.js"
+    },
+    "./utils": {
+      "types": "./build/utils/index.d.ts",
+      "import": "./build/utils/index.js"
+    }
+  },
   "type": "module",
   "scripts": {
     "build": "run-s clean compile",
@@ -36,20 +50,27 @@
     "test:lint": "eslint .",
     "test:unit": "vitest run",
     "watch": "npm run compile -- --watch",
-    "watch:test": "vitest watch"
+    "watch:test": "vitest watch",
+    "wdio": "wdio run ./foo/bar/wdio.conf.js"
   },
   "devDependencies": {
     "@types/cross-spawn": "^6.0.6",
     "@types/ejs": "^3.1.5",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^24.0.3",
     "@types/recursive-readdir": "^2.2.4",
     "@types/semver": "^7.5.8",
+    "@types/shelljs": "^0.8.17",
     "@types/yargs": "^17.0.33",
     "@vitest/coverage-v8": "^3.0.2",
     "@wdio/eslint": "^0.0.5",
     "eslint": "^9.13.0",
+    "fast-glob": "^3.3.3",
+    "fs-extra": "^11.3.0",
     "npm-run-all": "^4.1.5",
     "release-it": "^19.0.3",
+    "shelljs": "^0.10.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.6.3",
     "vitest": "^3.0.2"
   },

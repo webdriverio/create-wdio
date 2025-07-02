@@ -99,3 +99,9 @@ export interface ProjectProps {
     path: string
     packageJson: NormalizedPackageJson
 }
+
+export interface InstallCommandArguments {
+    config?: string
+    type: 'service' | 'reporter' | 'framework' | 'plugin'
+    name: string
+}

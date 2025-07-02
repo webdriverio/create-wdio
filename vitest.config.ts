@@ -4,6 +4,9 @@ import { defineConfig } from 'vite'
 export default defineConfig({
     test: {
         include: ['tests/**/*.test.ts'],
+        env: {
+            WDIO_UNIT_TESTS: '1'
+        },
         /**
          * not to ESM ported packages
          */

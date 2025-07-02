@@ -11,9 +11,9 @@ import { resolve } from 'import-meta-resolve'
 import { runProgram, getPackageVersion } from './utils.js'
 import {
     ASCII_ROBOT, PROGRAM_TITLE, UNSUPPORTED_NODE_VERSION, DEFAULT_NPM_TAG,
-    INSTALL_COMMAND, DEV_FLAG, PMs, EXECUTER, EXECUTE_COMMAND
+    INSTALL_COMMAND, DEV_FLAG, SUPPORTED_PACKAGE_MANAGERS, EXECUTER, EXECUTE_COMMAND
 } from './constants.js'
-import type { ProgramOpts } from './types'
+import type { ProgramOpts } from './types.js'
 
 const WDIO_COMMAND = 'wdio'
 let projectDir: string | undefined
@@ -65,7 +65,7 @@ function detectPackageManager() {
     }
     const detectedPM = process.env.npm_config_user_agent.split('/')[0].toLowerCase()
 
-    const matchedPM = PMs.find(pm => pm.toLowerCase() === detectedPM)
+    const matchedPM = SUPPORTED_PACKAGE_MANAGERS.find(pm => pm.toLowerCase() === detectedPM)
 
     return matchedPM || 'npm'
 }

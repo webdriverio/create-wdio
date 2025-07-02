@@ -1,15 +1,20 @@
-import { colorItBold, colorIt, convertPackageHashToObject, detectPackageManager, getDefaultFiles, detectCompiler, getProjectRoot } from './utils.js'
+import {  convertPackageHashToObject, detectPackageManager, getDefaultFiles, detectCompiler, getProjectRoot } from './utils.js'
 import pkg from '../package.json' with {type:'json'}
 import path from 'node:path'
 import fs from 'node:fs'
 import type { Questionnair } from './types.js'
+import chalk from 'chalk'
 
 export { pkg }
 
-export type PM = 'npm' | 'pnpm' | 'yarn' | 'bun';
+export const colorItBold = chalk.bold.rgb(234, 89, 6)
+export const colorIt = chalk.rgb(234, 89, 6)
+export type PACKAGE_MANAGER = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
 export const DEFAULT_NPM_TAG = 'latest'
+// TODO: replace developing banner
 export const ASCII_ROBOT = `
+                 #####      DEVELOPING      #####
                  -:...........................-:.
                  +                              +
               \`\` +      \`...\`        \`...\`      + \`
@@ -63,35 +68,35 @@ export const UNSUPPORTED_NODE_VERSION = (
     'Please update to Node.js v20 to continue.\n'
 )
 
-export const INSTALL_COMMAND: Record<PM, string> = {
+export const INSTALL_COMMAND: Record<PACKAGE_MANAGER, string> = {
     npm: 'install',
     pnpm: 'add',
     yarn: 'add',
     bun: 'install'
 } as const
 
-export const EXECUTER: Record<PM, string> = {
+export const EXECUTER: Record<PACKAGE_MANAGER, string> = {
     npm: 'npx',
     pnpm: 'pnpm',
     yarn: 'yarn',
     bun: 'bunx'
 } as const
 
-export const EXECUTE_COMMAND: Record<PM, string> = {
+export const EXECUTE_COMMAND: Record<PACKAGE_MANAGER, string> = {
     npm: '',
     pnpm: 'exec',
     yarn: 'exec',
     bun: ''
 } as const
 
-export const DEV_FLAG: Record<PM, string> = {
+export const DEV_FLAG: Record<PACKAGE_MANAGER, string> = {
     npm: '--save-dev',
     pnpm: '--save-dev',
     yarn: '--dev',
     bun: '--dev'
 } as const
 
-export const PMs = Object.keys(INSTALL_COMMAND) as PM[]
+export const SUPPORTED_PACKAGE_MANAGERS = Object.keys(INSTALL_COMMAND) as PACKAGE_MANAGER[]
 // transport from
 export const CONFIG_HELPER_INTRO = `
 ===============================

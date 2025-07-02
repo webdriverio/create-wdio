@@ -16,18 +16,15 @@ import ejs from 'ejs'
 import type { SpawnOptions } from 'node:child_process'
 
 import spawn from 'cross-spawn'
-import chalk from 'chalk'
 
-import { COMMUNITY_PACKAGES_WITH_TS_SUPPORT, DEPENDENCIES_INSTALLATION_MESSAGE, pkg, PMs, QUESTIONNAIRE, TESTING_LIBRARY_PACKAGES, usesSerenity } from './constants.js'
+import { COMMUNITY_PACKAGES_WITH_TS_SUPPORT, DEPENDENCIES_INSTALLATION_MESSAGE, pkg, SUPPORTED_PACKAGE_MANAGERS, QUESTIONNAIRE, TESTING_LIBRARY_PACKAGES, usesSerenity } from './constants.js'
 import type { ParsedAnswers, ProjectProps, Questionnair, SupportedPackage } from './types.js'
-import { getInstallCommand, installPackages } from './commands/install.js'
+import chalk from 'chalk'
+import { getInstallCommand, installPackages } from './install.js'
 
 const NPM_COMMAND = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
-
-export const colorItBold = chalk.bold.rgb(234, 89, 6)
-export const colorIt = chalk.rgb(234, 89, 6)
 
 process.on('SIGINT', () => printAndExit(undefined, 'SIGINT'))
 
@@ -664,7 +661,7 @@ export function detectPackageManager() {
     }
     const detectedPM = process.env.npm_config_user_agent.split('/')[0].toLowerCase()
 
-    const matchedPM = PMs.find(pm => pm.toLowerCase() === detectedPM)
+    const matchedPM = SUPPORTED_PACKAGE_MANAGERS.find(pm => pm.toLowerCase() === detectedPM)
 
     return matchedPM || 'npm'
 }
@@ -827,4 +824,60 @@ export async function generateBrowserRunnerTestFiles(answers: ParsedAnswers) {
     const componentFileName = preset ? `Component.${preset}.test.ejs` : 'standalone.test.ejs'
     const renderedTest = await renderFile(path.join(tplRootDir, componentFileName), { answers })
     await fs.writeFile(path.join(answers.destSpecRootPath, `Component.test.${testExt}`), renderedTest)
+}
+
+/**
+ * Helper utility used in `run` and `install` command to format a provided config path,
+ * giving it back as an absolute path, and a version without the file extension
+ * @param config the initially given file path to the WDIO config file
+ */
+export async function formatConfigFilePaths(config: string) {
+    const fullPath = path.isAbsolute(config)
+        ? config
+        : path.join(process.cwd(), config)
+    const fullPathNoExtension = fullPath.substring(0, fullPath.lastIndexOf(path.extname(fullPath)))
+    return { fullPath, fullPathNoExtension }
+}
+
+export function findInConfig(config: string, type: string) {
+    let regexStr = `[\\/\\/]*[\\s]*${type}s: [\\s]*\\[([\\s]*['|"]\\w*['|"],*)*[\\s]*\\]`
+
+    if (type === 'framework') {
+        regexStr = `[\\/\\/]*[\\s]*${type}: ([\\s]*['|"]\\w*['|"])`
+    }
+
+    const regex = new RegExp(regexStr, 'gmi')
+    return config.match(regex)
+}
+
+function buildNewConfigArray(str: string, type: string, change: string) {
+    const newStr = str
+        .split(`${type}s: `)[1]
+        .replace(/'/g, '')
+
+    const newArray = newStr.match(/(\w*)/gmi)?.filter(e => !!e).concat([change]) || []
+
+    return str
+        .replace('// ', '')
+        .replace(
+            new RegExp(`(${type}s: )((.*\\s*)*)`), `$1[${newArray.map(e => `'${e}'`)}]`
+        )
+}
+
+function buildNewConfigString(str: string, type: string, change: string) {
+    return str.replace(new RegExp(`(${type}: )('\\w*')`), `$1'${change}'`)
+}
+
+export function replaceConfig(config: string, type: string, name: string) {
+    if (type === 'framework') {
+        return buildNewConfigString(config, type, name)
+    }
+
+    const match = findInConfig(config, type)
+    if (!match || match.length === 0) {
+        return
+    }
+
+    const text = match.pop() || ''
+    return config.replace(text, buildNewConfigArray(text, type, name))
 }

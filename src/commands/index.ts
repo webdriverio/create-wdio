@@ -1,4 +1,3 @@
-import * as config from './config.js'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const commands: any = [config]
+export * as config from './config.js'
+export * as install from './install.js'
