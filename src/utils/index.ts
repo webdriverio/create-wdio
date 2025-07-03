@@ -1,4 +1,2 @@
 
-export { formatConfigFilePaths   } from '../utils.js'
-
-export { missingConfigurationPrompt, canAccessConfigPath } from '../cli/utils.js'
+export { SUPPORTED_PACKAGE_MANAGERS } from '../constants.js'
