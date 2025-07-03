@@ -25,27 +25,31 @@
   "exports": {
     ".": {
       "types": "./build/index.d.ts",
-      "import": "./build/index.js"
+      "import": "./build/index.js",
+      "importSource": "./src/index.ts"
     },
     "./config/cli": {
       "types": "./build/config/cli.d.ts",
-      "import": "./build/config/cli.js"
+      "import": "./build/config/cli.js",
+      "importSource": "./src/config/cli.ts"
     },
     "./install/cli": {
       "types": "./build/install/cli.d.ts",
-      "import": "./build/install/cli.js"
+      "import": "./build/install/cli.js",
+      "importSource": "./src/install/cli.ts"
     },
     "./utils": {
       "types": "./build/utils/index.d.ts",
-      "import": "./build/utils/index.js"
+      "import": "./build/utils/index.js",
+      "importSource": "./src/utils/index.ts"
     }
   },
   "type": "module",
   "scripts": {
     "build": "run-s build:*",
     "build:clean": "rm -rf tsconfig.tsbuildinfo ./build ./coverage",
-    "build:compile": "tsc -p ./tsconfig.json",
-    "build:copy": "tsx scripts/copy.ts",
+    "build:typecheck": "tsc --noEmit",
+    "build:compile": "rolldown -c",
     "release": "release-it --github.release",
     "release:ci": "npm run release -- --ci --npm.skipChecks --no-git.requireCleanWorkingDir",
     "release:patch": "npm run release -- patch",
@@ -54,7 +58,7 @@
     "test": "run-s build test:*",
     "test:lint": "eslint .",
     "test:unit": "vitest run",
-    "watch": "npm run compile -- --watch",
+    "watch": "rolldown --watch -c",
     "watch:test": "vitest watch",
     "wdio": "wdio run ./foo/bar/wdio.conf.js"
   },
@@ -76,6 +80,10 @@
     "fs-extra": "^11.3.0",
     "npm-run-all": "^4.1.5",
     "release-it": "^19.0.3",
+    "rolldown": "^1.0.0-beta.23",
+    "rolldown-plugin-dts": "^0.13.13",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-node-externals": "^8.0.1",
     "shelljs": "^0.10.0",
     "tsx": "^4.20.3",
     "typescript": "^5.6.3",
