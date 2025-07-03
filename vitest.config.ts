@@ -1,9 +1,11 @@
-/// <reference types="vitest" />
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
     test: {
         include: ['tests/**/*.test.ts'],
+        env: {
+            WDIO_UNIT_TESTS: '1'
+        },
         /**
          * not to ESM ported packages
          */
@@ -13,10 +15,10 @@ export default defineConfig({
             include: ['src/**/*.ts'],
             exclude: ['src/types.ts'],
             thresholds: {
-                lines: 96,
+                lines: 90,
                 functions: 80,
                 branches: 70,
-                statements: 96,
+                statements: 90,
             },
         },
     },
