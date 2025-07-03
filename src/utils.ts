@@ -147,13 +147,13 @@ export async function getAnswers(yes: boolean): Promise<Questionnair> {
         }
     ]
 
-    // @ts-expect-error
+    // @ts-ignore
     const answers = await inquirer.prompt(projectRootQuestions)
     if (answers.createPackageJSON) {
         answers.projectRoot = process.cwd()
     }
 
-    // @ts-expect-error
+    // @ts-ignore
     return inquirer.prompt(QUESTIONNAIRE, answers)
 }
 
